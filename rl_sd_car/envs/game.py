@@ -32,7 +32,7 @@ class Game:
         pygame.font.init()
         self.myfont = pygame.font.SysFont('Comic Sans MS', 30)
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        background_path = os.path.join(current_dir, r'img\background.png')
+        background_path = os.path.join(current_dir, 'img', 'background.png')
         self.BackGround = background.Background(background_path, [0, 0])
 
         self.angle_alpha = 0
@@ -45,7 +45,7 @@ class Game:
 
         # Build Car
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        image_path = os.path.join(current_dir, r'img\car_small.png')
+        image_path = os.path.join(current_dir, 'img' , 'car_small.png')
         car_image = pygame.image.load(image_path)
         car = Car(car_image, x=4, y=14 , angle=90, length=2, max_steering=50, max_acceleration=20.0, ppu=40)
         self.car = car

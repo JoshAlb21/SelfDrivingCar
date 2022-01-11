@@ -1,9 +1,10 @@
 from typing import List
 
+
 class CheckPoint:
 
-    position:tuple
-    check_times:int
+    position: tuple
+    check_times: int
 
     def __init__(self, x, y):
 
@@ -18,11 +19,11 @@ class CheckPoint:
 class RewardType:
 
     reward_points: float
-    reward_type: str #positive or negative
+    reward_type: str  # positive or negative
     description: str
 
     def __init__(self, reward_points, description):
-        
+
         self.reward_points = reward_points
         self.description = description
 
@@ -42,13 +43,13 @@ class RewardAccount:
         self.rewards = []
         self.total_account = 0
 
-    def add_reward_list(self, reward_list:List[RewardType]):
+    def add_reward_list(self, reward_list: List[RewardType]):
 
         self.rewards.extend(reward_list)
 
         for reward in reward_list:
             self.total_account += reward.reward_points
-    
+
     def get_reward_account(self):
         return self.total_account
 
@@ -66,10 +67,10 @@ class RewardAccount:
             rewards.append(RewardType(-1, 'collision'))
         if check_point:
             rewards.append(RewardType(+1, 'check_point'))
-        
+
         velocity_reward = velocity_x/max_velocity_x
         rewards.append(RewardType(velocity_reward, 'vel_bonus'))
-            
+
         self.add_reward_list(rewards)
 
         print(f'reward_account: {self.total_account}')

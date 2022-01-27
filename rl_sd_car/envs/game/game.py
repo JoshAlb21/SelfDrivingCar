@@ -3,6 +3,7 @@ import pygame
 from math import sin, radians, degrees, copysign
 import numpy as np
 from pygame.math import Vector2
+import random
 
 
 from my_car import Car
@@ -18,7 +19,7 @@ class Game:
     car: Car
     fps: int
 
-    def __init__(self, height, width, fps, ppu):
+    def __init__(self, height, width, fps, ppu, input_human:bool):
         pygame.init()
         pygame.display.set_caption("Deep Learning Car")
         self.width = width
@@ -28,6 +29,11 @@ class Game:
         self.ticks = fps
         self.exit = False
         self.ppu = ppu
+
+        #RL related settings
+        self.input_human = input_human
+        self.rl_action = None
+        self.pos_action_list = ["up", "down", "left", "right", "brake", "nothing"]
 
         pygame.font.init()
         self.myfont = pygame.font.SysFont('Comic Sans MS', 30)
@@ -108,7 +114,17 @@ class Game:
             self.car.steering = 0
         self.car.steering = max(-self.car.max_steering,
                                 min(self.car.steering, self.car.max_steering))
+    def set_rl_action(self, action):
 
+        if action in self.pos_action_list:
+            self.rl_action = action
+
+    def get_rl_action(self):
+        return self.rl_action
+
+    def test(self):
+        random_pick = random.choice(self.pos_action_list) 
+    
     def run(self):
 
         self.assemble()
@@ -127,20 +143,16 @@ class Game:
             # check whether to quit game or not
             self.check_quit_game()
 
-            # User input
-            pressed = pygame.key.get_pressed()
+            # Input
+            if self.input_human:
+                pressed = pygame.key.get_pressed()
+            else:
+                pressed = self.get_rl_action()
             self.key_arrow_handler(pressed, dt)
 
-            # Collision detection with black pixel (side of road)
             col = self.collision_detection(corner_p)
-
-            # check border
             env_handler.check_border()
-
-            # Check on track
             on_track = env_handler.check_on_track(self, white_p)
-
-            # Update car physics
             self.car.update(dt)
 
             # if not on track

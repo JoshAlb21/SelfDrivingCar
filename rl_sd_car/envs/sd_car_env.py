@@ -15,18 +15,19 @@ class SdCarEnv(gym.Env):
         super().__init__()
 
         # Define an action space
-        self.action_space = spaces.Discrete(5,)
+        self.action_space = spaces.Discrete(6,)
         '''
         left
         right
-        acc
+        up
+        down
         brake
         nothing
         '''
 
         # Define observation space
         '''
-        velocity (only x)
+        velocity (euclidian norm)
         angle
         distance1
         distance2
@@ -40,27 +41,30 @@ class SdCarEnv(gym.Env):
 
         reward: int = 0
 
-        # if we took an action, we were in state 1
-        observation = np.array([5.0, 360.0, 1.0, 1.0])
-        if action == 2:
-            reward = 1
-        else:
-            reward = -1
-        # regardless of the action, game is done after a single step
-        done = True
+        observation = self.get_observation()
+        reward = self.calculate_reward()
+        done = self.check_done()
 
         info = {}
 
         return observation, reward, done, info
 
-    def calculate_reward():
+    def calculate_reward(self):
+        pass
+
+    def get_observation(self):
+        #TODO 
+        return np.array([5.0, 360.0, 1.0, 1.0])
+    
+    def check_done(self):
+        #TODO check collision or time steps
         pass
 
     def reset(self):
+        #TODO check collision
+        reset_state: np.array = np.array([0.0, 0.0, 1.0, 1.0])
 
-        state: np.array = np.array([0.0, 0.0, 1.0, 1.0])
-
-        return state
+        return reset_state
 
     def render(self, mode='human'):
         pass

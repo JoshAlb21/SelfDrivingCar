@@ -4,7 +4,8 @@ from math import sin, radians, degrees, copysign
 import numpy as np
 from pygame.math import Vector2
 import random
-
+import json
+import pathlib
 
 from my_car import Car
 import background
@@ -73,25 +74,27 @@ class Game:
             if event.type == pygame.QUIT:
                 self.exit = True
 
-    def key_arrow_handler(self, pressed, dt):
-
-        if pressed[pygame.K_UP] or pressed == 'up':
+    def key_arrow_handler(self, pressed, dt, action:str=''):
+        
+        if pressed is None and not self.input_human:
+            pressed = pygame.MOUSEBUTTONDOWN
+        if pressed[pygame.K_UP] or action == 'up':
             if self.car.velocity.x < 0:
                 self.car.acceleration = self.car.brake_deceleration
             else:
                 self.car.acceleration += self.car.inertia * dt
-        elif pressed[pygame.K_DOWN] or pressed == 'down':
+        elif pressed[pygame.K_DOWN] or action == 'down':
             if self.car.velocity.x > 0:
                 self.car.acceleration = -self.car.brake_deceleration
             else:
                 self.car.acceleration -= self.car.inertia * dt
-        elif pressed[pygame.K_SPACE] or pressed == 'brake':
+        elif pressed[pygame.K_SPACE] or action == 'brake':
             if abs(self.car.velocity.x) > dt * self.car.brake_deceleration:
                 self.car.acceleration = - \
                     copysign(self.car.brake_deceleration, self.car.velocity.x)
             else:
                 self.car.acceleration = -self.car.velocity.x / dt
-        elif pressed[pygame.K_BACKSPACE] or pressed == 'reset':
+        elif pressed[pygame.K_BACKSPACE] or action == 'reset':
             #self.car.position = Vector2(self.car.reset_point)
             action_handler = EnvironmentHandlerActions()
             action_handler.reset_to_start(self.car)
@@ -106,16 +109,16 @@ class Game:
         self.car.acceleration = max(-self.car.max_acceleration,
                                     min(self.car.acceleration, self.car.max_acceleration))
 
-        if pressed[pygame.K_RIGHT] or pressed == 'right':
+        if pressed[pygame.K_RIGHT] or action == 'right':
             self.car.steering -= self.car.steering_increase * dt
-        elif pressed[pygame.K_LEFT] or pressed == 'left':
+        elif pressed[pygame.K_LEFT] or action == 'left':
             self.car.steering += self.car.steering_increase * dt
         else:
             self.car.steering = 0
         self.car.steering = max(-self.car.max_steering,
                                 min(self.car.steering, self.car.max_steering))
+    
     def set_rl_action(self, action):
-
         if action in self.pos_action_list:
             self.rl_action = action
 
@@ -124,8 +127,13 @@ class Game:
 
     def test(self):
         random_pick = random.choice(self.pos_action_list) 
-    
+        self.set_rl_action(random_pick)
+
     def run(self):
+
+        """
+        #TODO disable keyboard input if not in human input mode
+        """
 
         self.assemble()
         env_handler = EnvironmentHandlerInputs(self.car)
@@ -134,11 +142,16 @@ class Game:
         # get_pixel for collision detection
         white_p, corner_p, green_p = self.BackGround.get_pixel()
         on_track = False
-
+        sum =0
         while not self.exit:
 
             # get time since last call
             dt = self.clock.get_time() / 1000
+
+            sum += dt
+            if sum > 3:
+                self.test()
+                sum =0
 
             # check whether to quit game or not
             self.check_quit_game()
@@ -146,9 +159,12 @@ class Game:
             # Input
             if self.input_human:
                 pressed = pygame.key.get_pressed()
+                self.key_arrow_handler(pressed, dt)
             else:
-                pressed = self.get_rl_action()
-            self.key_arrow_handler(pressed, dt)
+                action = self.get_rl_action()
+                pressed = pygame.key.get_pressed() 
+                self.key_arrow_handler(pressed, dt, action)
+            
 
             col = self.collision_detection(corner_p)
             env_handler.check_border()
@@ -193,16 +209,16 @@ class Game:
 
         pygame.quit()
 
-
 if __name__ == '__main__':
 
-    # OPTIONS
-    width = 1600  # 1280
-    height = 920  # 720
-    fps = 60
-    # pixel per unit ratio
+    current_path = pathlib.Path(__file__).parent.resolve()
+    config_path = os.path.join(current_path, 'config.json')
+    with open(config_path) as json_data_file:
+        config = json.load(json_data_file)
+        
+    # ppu: pixel per unit ratio
     # pixel_length of car/meter length of car
-    ppu = 40
 
-    game = Game(height, width, fps, ppu)
+
+    game = Game(config["game"]["screen_height"], config["game"]["screen_widht"], config["game"]["fps"], config["game"]["ppu"], False)
     game.run()

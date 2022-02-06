@@ -5,12 +5,12 @@
         "fps": 60,
         "ppu": 40
     },
-    "other":{
+    "rl_config":{
         "preprocessing_queue":[
             "preprocessing.scale_and_center",
             "preprocessing.dot_reduction",
             "preprocessing.connect_lines"
             ],
-        "use_anonymous":true
+        "human_input":true
     }
 }

@@ -215,10 +215,11 @@ if __name__ == '__main__':
     config_path = os.path.join(current_path, 'config.json')
     with open(config_path) as json_data_file:
         config = json.load(json_data_file)
-        
+
     # ppu: pixel per unit ratio
     # pixel_length of car/meter length of car
 
-
-    game = Game(config["game"]["screen_height"], config["game"]["screen_widht"], config["game"]["fps"], config["game"]["ppu"], False)
+    game = Game(config["game"]["screen_height"], config["game"]["screen_widht"],
+                config["game"]["fps"], config["game"]["ppu"],
+                config["rl_config"]["human_input"])
     game.run()

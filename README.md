@@ -11,8 +11,8 @@ gym.make('rl_sd_car:sd-v0')
 
 ## Action Space
 
-        # Define an action space
-        self.action_space = spaces.Discrete(6,)
+Define an action space
+self.action_space = spaces.Discrete(6,)
 
 left
 right
@@ -20,3 +20,10 @@ up
 down
 brake
 nothing
+
+## Observation Space
+
+velocity (euclidian norm)
+angle
+distance1
+distance2

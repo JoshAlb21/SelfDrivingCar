@@ -5,6 +5,8 @@ from gym.utils import seeding
 import numpy as np
 from typing import List
 
+from game import game
+
 
 class SdCarEnv(gym.Env):
 
@@ -13,26 +15,14 @@ class SdCarEnv(gym.Env):
     def __init__(self):
 
         super().__init__()
+        self.environment = game.start_game()
 
         # Define an action space
         self.action_space = spaces.Discrete(6,)
-        '''
-        left
-        right
-        up
-        down
-        brake
-        nothing
-        '''
 
         # Define observation space
-        '''
-        velocity (euclidian norm)
-        angle
-        distance1
-        distance2
-        '''
         high: np.array = np.array([20.0, 360.0, 1.0, 1.0])
+        observation_hist: list = []
         # assumption: no negative velocity
         low: np.array = np.array([0.0, 0.0, 0.0, 0.0])
         self.observation_space = spaces.Box(low, high, dtype=np.float32)
@@ -40,7 +30,7 @@ class SdCarEnv(gym.Env):
     def step(self, action) -> List[np.array, float, bool, dict]:
 
         reward: int = 0
-
+        self.environment.set_environment(action)
         observation = self.get_observation()
         reward = self.calculate_reward()
         done = self.check_done()

@@ -1,11 +1,12 @@
 import os
 import pygame
-from math import sin, radians, degrees, copysign
+from math import sin, radians, degrees, copysign, hypot
 import numpy as np
 from pygame.math import Vector2
 import random
 import json
 import pathlib
+from typing import Tuple
 
 from my_car import Car
 import background
@@ -19,8 +20,11 @@ class Game:
     height: int
     car: Car
     fps: int
+    ppu: float
+    input_human: bool
+    reward_account: RewardAccount
 
-    def __init__(self, height, width, fps, ppu, input_human:bool):
+    def __init__(self, height, width, fps, ppu, input_human):
         pygame.init()
         pygame.display.set_caption("Deep Learning Car")
         self.width = width
@@ -123,23 +127,28 @@ class Game:
             self.rl_action = action
         else:
             print("No valid action")
-
-    def get_rl_observation(self):
-        return self.rl_action
     
-    def get_rl_observation(self):
-        pass
+    def get_rl_observation(self) -> Tuple[float, float, float, float]:
+
+        velocity = hypot(self.car.velocity[0] , self.car.velocity[1])
+        angle = self.car.angle
+        dist1 = self.car.sensor1.get_dist_to_wall(
+                self.car, self)
+        dist2 = self.car.sensor2.get_dist_to_wall(
+                self.car, self)
+        
+        return velocity, angle, dist1, dist2
 
     def run(self):
 
         self.assemble()
         env_handler = EnvironmentHandlerInputs(self.car)
-        reward_account = RewardAccount()
+        self.reward_account = RewardAccount()
 
         # get_pixel for collision detection
         white_p, corner_p, green_p = self.BackGround.get_pixel()
         on_track = False
-        sum =0
+        sum = 0
         while not self.exit:
 
             # get time since last call
@@ -178,7 +187,7 @@ class Game:
                 self.time_on_track += 1
 
             # Reinforcement Stuff
-            reward_account.update_reward_account(
+            self.reward_account.update_reward_account(
                 on_track, col, check_point=False, velocity_x=self.car.velocity[0], max_velocity_x=self.car.max_velocity)
 
             # Drawing
@@ -190,7 +199,7 @@ class Game:
             self.car.sensor2.draw_sensor_line(self.car, self.screen)
 
             self.car.sensor1.get_dist_to_wall(
-                self.car, (0, 0, 0), self.screen, self)
+                self.car, self)
             # self.car.sensor1._get_y_differ(self.car)
 
             # New Car Position

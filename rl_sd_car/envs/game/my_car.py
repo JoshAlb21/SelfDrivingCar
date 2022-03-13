@@ -10,6 +10,7 @@ class Car:
 
     car_image: pygame.Surface
     ppu: int
+    angle: float
 
     def __init__(self, car_image, x, y, angle=0.0, length=4, max_steering=30, max_acceleration=5.0, ppu=40):
 
@@ -84,12 +85,14 @@ class DistSensor:  # TODO hier weiter machen
     side: str  # left oder right
     sensor_pos: Vector2  # with ppu
     sensor_length: int
+    wall_pix_color: tuple
 
-    def __init__(self, name, side, sensor_length):
+    def __init__(self, name, side, sensor_length, wall_pix_color: tuple=(0,0,0)):
 
         self.name = name
         self.side = side
         self.sensor_length = sensor_length
+        self.wall_pix_color = wall_pix_color
 
     def get_sensor_pos(self):
         return self.sensor_pos
@@ -120,7 +123,7 @@ class DistSensor:  # TODO hier weiter machen
         pygame.draw.line(screen, (0, 255, 0), car.position *
                          car.ppu, self.get_sensor_pos())
 
-    def get_dist_to_wall(self, car, wall_pix_color: tuple, screen, game):
+    def get_dist_to_wall(self, car, game):
         'calculate distance to wall and multiply by sensor_length'
 
         temp_pos = car.position*car.ppu
@@ -144,7 +147,7 @@ class DistSensor:  # TODO hier weiter machen
         # get index of first wall_pix
         try:
             itemindex = np.where(np.array(line_points_color)
-                                 == wall_pix_color)[0][0]
+                                 == self.wall_pix_color)[0][0]
             normalized_index = itemindex/line_points.shape[0]
         except IndexError:  # out of sensor distance
             normalized_index = -1

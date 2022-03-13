@@ -6,6 +6,7 @@ import numpy as np
 from typing import List
 
 from game import game
+from rl_sd_car.envs.game.reward_system import RewardAccount
 
 
 class SdCarEnv(gym.Env):
@@ -29,9 +30,8 @@ class SdCarEnv(gym.Env):
 
     def step(self, action) -> List[np.array, float, bool, dict]:
 
-        reward: int = 0
-        self.environment.set_environment(action)
-        observation = self.get_observation()
+        self.environment.set_rl_action(action)
+        observation = self.environment.get_rl_observation()
         reward = self.calculate_reward()
         done = self.check_done()
 
@@ -39,19 +39,12 @@ class SdCarEnv(gym.Env):
 
         return observation, reward, done, info
 
-    def calculate_reward(self):
-        reward = 1
-
+    def calculate_reward(self) -> float:
+        reward = self.environment.reward_account.get_reward_account()
         return reward
-
-    def get_observation(self):
-        #TODO 
-        observation = np.array([5.0, 360.0, 1.0, 1.0])
-        return observation
     
     def check_done(self):
-        #TODO check collision or time steps
-        done = True
+        done = False
         return done
 
     def reset(self):

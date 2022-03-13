@@ -124,6 +124,9 @@ class Game:
 
     def get_rl_action(self):
         return self.rl_action
+    
+    def get_rl_observation(self):
+        pass
 
     def test(self):
         random_pick = random.choice(self.pos_action_list) 

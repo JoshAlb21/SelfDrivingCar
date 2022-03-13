@@ -16,22 +16,8 @@ class SdCarEnv(gym.Env):
 
         # Define an action space
         self.action_space = spaces.Discrete(6,)
-        '''
-        left
-        right
-        up
-        down
-        brake
-        nothing
-        '''
 
         # Define observation space
-        '''
-        velocity (euclidian norm)
-        angle
-        distance1
-        distance2
-        '''
         high: np.array = np.array([20.0, 360.0, 1.0, 1.0])
         # assumption: no negative velocity
         low: np.array = np.array([0.0, 0.0, 0.0, 0.0])
@@ -50,15 +36,19 @@ class SdCarEnv(gym.Env):
         return observation, reward, done, info
 
     def calculate_reward(self):
-        pass
+        reward = 1
+
+        return reward
 
     def get_observation(self):
         #TODO 
-        return np.array([5.0, 360.0, 1.0, 1.0])
+        observation = np.array([5.0, 360.0, 1.0, 1.0])
+        return observation
     
     def check_done(self):
         #TODO check collision or time steps
-        pass
+        done = True
+        return done
 
     def reset(self):
         #TODO check collision

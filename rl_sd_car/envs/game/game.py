@@ -121,22 +121,16 @@ class Game:
     def set_rl_action(self, action):
         if action in self.pos_action_list:
             self.rl_action = action
+        else:
+            print("No valid action")
 
-    def get_rl_action(self):
+    def get_rl_observation(self):
         return self.rl_action
     
     def get_rl_observation(self):
         pass
 
-    def test(self):
-        random_pick = random.choice(self.pos_action_list) 
-        self.set_rl_action(random_pick)
-
     def run(self):
-
-        """
-        #TODO disable keyboard input if not in human input mode
-        """
 
         self.assemble()
         env_handler = EnvironmentHandlerInputs(self.car)
@@ -211,9 +205,8 @@ class Game:
             self.clock.tick(self.ticks)  # adjust fps
 
         pygame.quit()
-
-if __name__ == '__main__':
-
+    
+def start_game():
     current_path = pathlib.Path(__file__).parent.resolve()
     config_path = os.path.join(current_path, 'config.json')
     with open(config_path) as json_data_file:
@@ -226,3 +219,9 @@ if __name__ == '__main__':
                 config["game"]["fps"], config["game"]["ppu"],
                 config["rl_config"]["human_input"])
     game.run()
+
+    return game
+
+if __name__ == '__main__':
+
+    start_game()

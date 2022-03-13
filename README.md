@@ -12,7 +12,8 @@ gym.make('rl_sd_car:sd-v0')
 
 ## Action Space
 
-The action space is defined as discrete with 6 states:
+Define an action space
+self.action_space = spaces.Discrete(6,)
 
 left
 right

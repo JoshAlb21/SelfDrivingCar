@@ -3,11 +3,9 @@ from gym import error, spaces, utils
 from gym.utils import seeding
 
 import numpy as np
-from typing import List
+from typing import Tuple
 
-from game import game
-from rl_sd_car.envs.game.reward_system import RewardAccount
-
+from rl_sd_car.envs.car_game import game
 
 class SdCarEnv(gym.Env):
 
@@ -28,7 +26,7 @@ class SdCarEnv(gym.Env):
         low: np.array = np.array([0.0, 0.0, 0.0, 0.0])
         self.observation_space = spaces.Box(low, high, dtype=np.float32)
 
-    def step(self, action) -> List[np.array, float, bool, dict]:
+    def step(self, action) -> Tuple[np.array, float, bool, dict]:
 
         self.environment.set_rl_action(action)
         observation = self.environment.get_rl_observation()

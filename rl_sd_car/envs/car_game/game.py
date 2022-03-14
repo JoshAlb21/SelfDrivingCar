@@ -8,10 +8,10 @@ import json
 import pathlib
 from typing import Tuple
 
-from my_car import Car
-import background
-from drive_events import EnvironmentHandlerInputs, EnvironmentHandlerActions
-from reward_system import RewardAccount
+from rl_sd_car.envs.car_game.my_car import Car
+from rl_sd_car.envs.car_game import background
+from rl_sd_car.envs.car_game.drive_events import EnvironmentHandlerInputs, EnvironmentHandlerActions
+from rl_sd_car.envs.car_game.reward_system import RewardAccount
 
 
 class Game:

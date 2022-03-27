@@ -148,16 +148,10 @@ class Game:
         # get_pixel for collision detection
         white_p, corner_p, green_p = self.BackGround.get_pixel()
         on_track = False
-        sum = 0
         while not self.exit:
 
             # get time since last call
             dt = self.clock.get_time() / 1000
-
-            sum += dt
-            if sum > 3:
-                self.test()
-                sum =0
 
             # check whether to quit game or not
             self.check_quit_game()
@@ -227,7 +221,9 @@ def start_game():
     game = Game(config["game"]["screen_height"], config["game"]["screen_widht"],
                 config["game"]["fps"], config["game"]["ppu"],
                 config["rl_config"]["human_input"])
+    print('test4')
     game.run()
+    print('test3')
 
     return game
 

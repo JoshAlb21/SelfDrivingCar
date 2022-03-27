@@ -15,11 +15,8 @@ class SdCarEnv(gym.Env):
 
         super().__init__()
         self.environment = game.start_game()
-
-        # Define an action space
+        print('test1')
         self.action_space = spaces.Discrete(6,)
-
-        # Define observation space
         high: np.array = np.array([20.0, 360.0, 1.0, 1.0])
         observation_hist: list = []
         # assumption: no negative velocity

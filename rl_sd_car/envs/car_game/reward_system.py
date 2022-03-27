@@ -73,4 +73,4 @@ class RewardAccount:
 
         self.add_reward_list(rewards)
 
-        print(f'reward_account: {self.total_account}')
+        #print(f'reward_account: {self.total_account}')

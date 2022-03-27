@@ -1,11 +1,11 @@
 PROJEKT IST AKTUELL IN ARBEIT
 WORK IN PROGRESS
 
-# 1.Step
+## 1.Step
 install package:
 pip install -e SelfDrivingCar
 
-# 2.Step
+## 2.Step
 create an instance of the environment with
 gym.make('rl_sd_car:sd-v0')
 

@@ -7,6 +7,7 @@ from typing import Tuple
 
 from rl_sd_car.envs.car_game import game
 
+
 class SdCarEnv(gym.Env):
 
     metadata = {'render.modes': ['human']}
@@ -37,13 +38,13 @@ class SdCarEnv(gym.Env):
     def calculate_reward(self) -> float:
         reward = self.environment.reward_account.get_reward_account()
         return reward
-    
+
     def check_done(self):
         done = False
         return done
 
     def reset(self):
-        #TODO check collision
+        # TODO check collision
         reset_state: np.array = np.array([0.0, 0.0, 1.0, 1.0])
 
         return reset_state

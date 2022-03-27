@@ -1,14 +1,17 @@
 import os
 import pygame
-from math import sin, radians, degrees, copysign
+from math import sin, radians, degrees, copysign, hypot
 import numpy as np
 from pygame.math import Vector2
+import random
+import json
+import pathlib
+from typing import Tuple
 
-
-from my_car import Car
-import background
-from drive_events import EnvironmentHandlerInputs, EnvironmentHandlerActions
-from reward_system import RewardAccount
+from rl_sd_car.envs.car_game.my_car import Car
+from rl_sd_car.envs.car_game import background
+from rl_sd_car.envs.car_game.drive_events import EnvironmentHandlerInputs, EnvironmentHandlerActions
+from rl_sd_car.envs.car_game.reward_system import RewardAccount
 
 
 class Game:
@@ -17,8 +20,11 @@ class Game:
     height: int
     car: Car
     fps: int
+    ppu: float
+    input_human: bool
+    reward_account: RewardAccount
 
-    def __init__(self, height, width, fps, ppu):
+    def __init__(self, height, width, fps, ppu, input_human):
         pygame.init()
         pygame.display.set_caption("Deep Learning Car")
         self.width = width
@@ -28,6 +34,11 @@ class Game:
         self.ticks = fps
         self.exit = False
         self.ppu = ppu
+
+        #RL related settings
+        self.input_human = input_human
+        self.rl_action = None
+        self.pos_action_list = ["up", "down", "left", "right", "brake", "nothing"]
 
         pygame.font.init()
         self.myfont = pygame.font.SysFont('Comic Sans MS', 30)
@@ -67,25 +78,27 @@ class Game:
             if event.type == pygame.QUIT:
                 self.exit = True
 
-    def key_arrow_handler(self, pressed, dt):
-
-        if pressed[pygame.K_UP] or pressed == 'up':
+    def key_arrow_handler(self, pressed, dt, action:str=''):
+        
+        if pressed is None and not self.input_human:
+            pressed = pygame.MOUSEBUTTONDOWN
+        if pressed[pygame.K_UP] or action == 'up':
             if self.car.velocity.x < 0:
                 self.car.acceleration = self.car.brake_deceleration
             else:
                 self.car.acceleration += self.car.inertia * dt
-        elif pressed[pygame.K_DOWN] or pressed == 'down':
+        elif pressed[pygame.K_DOWN] or action == 'down':
             if self.car.velocity.x > 0:
                 self.car.acceleration = -self.car.brake_deceleration
             else:
                 self.car.acceleration -= self.car.inertia * dt
-        elif pressed[pygame.K_SPACE] or pressed == 'brake':
+        elif pressed[pygame.K_SPACE] or action == 'brake':
             if abs(self.car.velocity.x) > dt * self.car.brake_deceleration:
                 self.car.acceleration = - \
                     copysign(self.car.brake_deceleration, self.car.velocity.x)
             else:
                 self.car.acceleration = -self.car.velocity.x / dt
-        elif pressed[pygame.K_BACKSPACE] or pressed == 'reset':
+        elif pressed[pygame.K_BACKSPACE] or action == 'reset':
             #self.car.position = Vector2(self.car.reset_point)
             action_handler = EnvironmentHandlerActions()
             action_handler.reset_to_start(self.car)
@@ -100,25 +113,41 @@ class Game:
         self.car.acceleration = max(-self.car.max_acceleration,
                                     min(self.car.acceleration, self.car.max_acceleration))
 
-        if pressed[pygame.K_RIGHT] or pressed == 'right':
+        if pressed[pygame.K_RIGHT] or action == 'right':
             self.car.steering -= self.car.steering_increase * dt
-        elif pressed[pygame.K_LEFT] or pressed == 'left':
+        elif pressed[pygame.K_LEFT] or action == 'left':
             self.car.steering += self.car.steering_increase * dt
         else:
             self.car.steering = 0
         self.car.steering = max(-self.car.max_steering,
                                 min(self.car.steering, self.car.max_steering))
+    
+    def set_rl_action(self, action):
+        if action in self.pos_action_list:
+            self.rl_action = action
+        else:
+            print("No valid action")
+    
+    def get_rl_observation(self) -> Tuple[float, float, float, float]:
+
+        velocity = hypot(self.car.velocity[0] , self.car.velocity[1])
+        angle = self.car.angle
+        dist1 = self.car.sensor1.get_dist_to_wall(
+                self.car, self)
+        dist2 = self.car.sensor2.get_dist_to_wall(
+                self.car, self)
+        
+        return velocity, angle, dist1, dist2
 
     def run(self):
 
         self.assemble()
         env_handler = EnvironmentHandlerInputs(self.car)
-        reward_account = RewardAccount()
+        self.reward_account = RewardAccount()
 
         # get_pixel for collision detection
         white_p, corner_p, green_p = self.BackGround.get_pixel()
         on_track = False
-
         while not self.exit:
 
             # get time since last call
@@ -127,20 +156,19 @@ class Game:
             # check whether to quit game or not
             self.check_quit_game()
 
-            # User input
-            pressed = pygame.key.get_pressed()
-            self.key_arrow_handler(pressed, dt)
+            # Input
+            if self.input_human:
+                pressed = pygame.key.get_pressed()
+                self.key_arrow_handler(pressed, dt)
+            else:
+                action = self.get_rl_action()
+                pressed = pygame.key.get_pressed() 
+                self.key_arrow_handler(pressed, dt, action)
+            
 
-            # Collision detection with black pixel (side of road)
             col = self.collision_detection(corner_p)
-
-            # check border
             env_handler.check_border()
-
-            # Check on track
             on_track = env_handler.check_on_track(self, white_p)
-
-            # Update car physics
             self.car.update(dt)
 
             # if not on track
@@ -153,7 +181,7 @@ class Game:
                 self.time_on_track += 1
 
             # Reinforcement Stuff
-            reward_account.update_reward_account(
+            self.reward_account.update_reward_account(
                 on_track, col, check_point=False, velocity_x=self.car.velocity[0], max_velocity_x=self.car.max_velocity)
 
             # Drawing
@@ -165,7 +193,7 @@ class Game:
             self.car.sensor2.draw_sensor_line(self.car, self.screen)
 
             self.car.sensor1.get_dist_to_wall(
-                self.car, (0, 0, 0), self.screen, self)
+                self.car, self)
             # self.car.sensor1._get_y_differ(self.car)
 
             # New Car Position
@@ -180,17 +208,25 @@ class Game:
             self.clock.tick(self.ticks)  # adjust fps
 
         pygame.quit()
+    
+def start_game():
+    current_path = pathlib.Path(__file__).parent.resolve()
+    config_path = os.path.join(current_path, 'config.json')
+    with open(config_path) as json_data_file:
+        config = json.load(json_data_file)
 
+    # ppu: pixel per unit ratio
+    # pixel_length of car/meter length of car
+
+    game = Game(config["game"]["screen_height"], config["game"]["screen_widht"],
+                config["game"]["fps"], config["game"]["ppu"],
+                config["rl_config"]["human_input"])
+    print('test4')
+    game.run()
+    print('test3')
+
+    return game
 
 if __name__ == '__main__':
 
-    # OPTIONS
-    width = 1600  # 1280
-    height = 920  # 720
-    fps = 60
-    # pixel per unit ratio
-    # pixel_length of car/meter length of car
-    ppu = 40
-
-    game = Game(height, width, fps, ppu)
-    game.run()
+    start_game()

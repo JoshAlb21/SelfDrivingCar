@@ -33,9 +33,9 @@ class RewardType:
             reward_type = 'positive'
 
 
-class RewardAccount:
+class RewardAccount: 
 
-    total_account: list
+    total_account: float
     rewards: list
     latest_rewards: float
 
@@ -50,7 +50,7 @@ class RewardAccount:
         for reward in reward_list:
             self.total_account += reward.reward_points
 
-    def get_reward_account(self):
+    def get_reward_account(self) -> float:
         return self.total_account
 
     def get_list_of_rewards(self):
@@ -73,4 +73,4 @@ class RewardAccount:
 
         self.add_reward_list(rewards)
 
-        print(f'reward_account: {self.total_account}')
+        #print(f'reward_account: {self.total_account}')

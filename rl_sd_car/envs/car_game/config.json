@@ -1,0 +1,16 @@
+{
+    "game":{
+        "screen_widht": 1600,
+        "screen_height": 920,
+        "fps": 60,
+        "ppu": 40
+    },
+    "rl_config":{
+        "preprocessing_queue":[
+            "preprocessing.scale_and_center",
+            "preprocessing.dot_reduction",
+            "preprocessing.connect_lines"
+            ],
+        "human_input":true
+    }
+}

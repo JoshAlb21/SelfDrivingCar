@@ -15,8 +15,8 @@ class SdCarEnv(gym.Env):
     def __init__(self):
 
         super().__init__()
-        self.environment = game.start_game()
-        print('test1')
+        self.environment = game.create_game()
+        self.environment.init_game()
         self.action_space = spaces.Discrete(6,)
         high: np.array = np.array([20.0, 360.0, 1.0, 1.0])
         observation_hist: list = []
@@ -27,6 +27,7 @@ class SdCarEnv(gym.Env):
     def step(self, action) -> Tuple[np.array, float, bool, dict]:
 
         self.environment.set_rl_action(action)
+        self.environment.game_loop_function()
         observation = self.environment.get_rl_observation()
         reward = self.calculate_reward()
         done = self.check_done()

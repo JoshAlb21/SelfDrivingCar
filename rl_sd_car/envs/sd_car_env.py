@@ -4,6 +4,7 @@ from gym.utils import seeding
 
 import numpy as np
 from typing import Tuple
+import time
 
 from rl_sd_car.envs.car_game import game
 
@@ -45,10 +46,10 @@ class SdCarEnv(gym.Env):
         return done
 
     def reset(self):
-        # TODO check collision
-        reset_state: np.array = np.array([0.0, 0.0, 1.0, 1.0])
+        self.environment.action_handler.reset_to_start(self.environment.car)
+        observation = self.environment.get_rl_observation(disable_dist=True)
 
-        return reset_state
+        return observation
 
     def render(self, mode='human'):
         pass

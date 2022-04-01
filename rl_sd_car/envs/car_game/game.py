@@ -7,6 +7,7 @@ import random
 import json
 import pathlib
 from typing import Tuple
+import time
 
 from rl_sd_car.envs.car_game.my_car import Car
 from rl_sd_car.envs.car_game import background
@@ -46,6 +47,8 @@ class Game:
         current_dir = os.path.dirname(os.path.abspath(__file__))
         background_path = os.path.join(current_dir, 'img', 'background.png')
         self.BackGround = background.Background(background_path, [0, 0])
+        self.background_pixel = None
+        self.action_handler = EnvironmentHandlerActions()
 
         self.angle_alpha = 0
         self.angle_beta = 0
@@ -101,8 +104,7 @@ class Game:
                 self.car.acceleration = -self.car.velocity.x / dt
         elif pressed[pygame.K_BACKSPACE] or action == 'reset':
             #self.car.position = Vector2(self.car.reset_point)
-            action_handler = EnvironmentHandlerActions()
-            action_handler.reset_to_start(self.car)
+            self.action_handler.reset_to_start(self.car)
         else:
             if abs(self.car.velocity.x) > dt * self.car.free_deceleration:
                 self.car.acceleration = - \
@@ -129,20 +131,25 @@ class Game:
         else:
             print("No valid action")
 
-    def get_rl_observation(self) -> Tuple[float, float, float, float]:
+    def get_rl_observation(self, disable_dist: bool = False) -> Tuple[float, float, float, float]:
 
         velocity = hypot(self.car.velocity[0], self.car.velocity[1])
         angle = self.car.angle
-        dist1 = self.car.sensor1.get_dist_to_wall(
-            self.car, self)
-        dist2 = self.car.sensor2.get_dist_to_wall(
-            self.car, self)
+        if not disable_dist:
+            dist1 = self.car.sensor1.get_dist_to_wall(
+                self.car, self)
+            dist2 = self.car.sensor2.get_dist_to_wall(
+                self.car, self)
+        else:
+            dist1, dist2 = (1.0, 1.0)
 
         return velocity, angle, dist1, dist2
 
     def init_game(self):
         ''' Initiate all necessary functions and modules'''
         self.assemble()
+        white_p, corner_p, green_p = self.BackGround.get_pixel()
+        self.background_pixel = [white_p, corner_p, green_p]
         env_handler = EnvironmentHandlerInputs(self.car)
         self.env_handler = env_handler
         self.reward_account = RewardAccount()
@@ -172,13 +179,11 @@ class Game:
             action = self.get_rl_action()
             pressed = pygame.key.get_pressed()
             self.key_arrow_handler(pressed, dt, action)
-
-        white_p, corner_p, green_p = self.BackGround.get_pixel()
+        white_p, corner_p, green_p = self.background_pixel
         col = self.collision_detection(corner_p)
         self.env_handler.check_border()
         on_track = self.env_handler.check_on_track(self, white_p)
         self.car.update(dt)
-
         # if not on track
         if not on_track:
             self.car.handle_not_on_track()
@@ -203,7 +208,6 @@ class Game:
         self.car.sensor1.get_dist_to_wall(
             self.car, self)
         # self.car.sensor1._get_y_differ(self.car)
-
         # New Car Position
         rotated = pygame.transform.rotate(
             self.car.car_image, self.car.angle)

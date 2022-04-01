@@ -2,8 +2,7 @@ from rl_sd_car.envs.sd_car_env import SdCarEnv
 import numpy as np
 import gym
 from gym import envs
-import pygame
-print('hello world')
+import time
 
 env = SdCarEnv()
 action_space_size = env.action_space.n
@@ -18,6 +17,7 @@ action = env.action_space.sample()
 print("Sampled action:", action)
 obs, reward, done, info = env.step(action)
 print(obs, reward, done, info)
+
 while True:
     action = env.action_space.sample()
     obs, reward, done, info = env.step(action)

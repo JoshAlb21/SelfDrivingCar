@@ -38,7 +38,7 @@ class SdCarEnv(gym.Env):
         return observation, reward, done, info
 
     def calculate_reward(self) -> float:
-        reward = self.environment.reward_account.get_reward_account()
+        reward = self.environment.reward_account.get_latest_rewards()
         return reward
 
     def check_done(self):

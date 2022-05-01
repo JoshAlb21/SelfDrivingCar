@@ -21,21 +21,16 @@ print("Sampled action:", action)
 obs, reward, done, info = env.step(action)
 print(obs, reward, done, info)
 
-model = DQN(MlpPolicy, env, verbose=1, prioritized_replay=True)
+model = DQN(MlpPolicy, env, verbose=0, prioritized_replay=True)
 # Train the agent
-model.learn(total_timesteps=4000)
+model.learn(total_timesteps=10)
 end = time.time()
 
 obs = env.reset()
 while True:
     action, _states = model.predict(obs)
-    obs, rewards, dones, info = env.step(action)
+    obs, rewards, done, info = env.step(action)
     env.render()
-
-'''
-TEST Function
-while True:
-    action = env.action_space.sample()
-    obs, reward, done, info = env.step(action)
-    print(action)
-'''
+    # print(action)
+    print(obs)
+    print(rewards)

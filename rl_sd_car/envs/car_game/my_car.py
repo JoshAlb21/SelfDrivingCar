@@ -87,7 +87,7 @@ class DistSensor:  # TODO hier weiter machen
     sensor_length: int
     wall_pix_color: tuple
 
-    def __init__(self, name, side, sensor_length, wall_pix_color: tuple=(0,0,0)):
+    def __init__(self, name, side, sensor_length, wall_pix_color: tuple = (0, 0, 0)):
 
         self.name = name
         self.side = side

@@ -1,6 +1,10 @@
 PROJEKT IST AKTUELL IN ARBEIT
 WORK IN PROGRESS
 
+# Parameter
+ppu: pixel per unit ratio
+pixel_length of car/meter length of car
+
 ## 1.Step
 install package:
 pip install -e SelfDrivingCar
@@ -23,7 +27,8 @@ brake
 nothing
 
 ## Observation Space
-# Define observation space
+
+Define observation space
 
 velocity (euclidian norm) [0, 20]
 angle [0,360]

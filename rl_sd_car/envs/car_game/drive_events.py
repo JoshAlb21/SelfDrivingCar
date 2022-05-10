@@ -40,4 +40,5 @@ class EnvironmentHandlerActions:
 
         car.position = Vector2(car.reset_point)
         car.velocity = Vector2(0.0, 0.0)
+        self.acceleration = 0.0
         car.angle = 90.0

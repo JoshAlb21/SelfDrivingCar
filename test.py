@@ -4,8 +4,8 @@ import gym
 from gym import envs
 import time
 
-from stable_baselines import DQN
-from stable_baselines.deepq.policies import MlpPolicy
+from stable_baselines3 import DQN
+from stable_baselines3.dqn.policies import DQNPolicy
 
 env = SdCarEnv()
 action_space_size = env.action_space.n
@@ -21,7 +21,7 @@ print("Sampled action:", action)
 obs, reward, done, info = env.step(action)
 print(obs, reward, done, info)
 
-model = DQN(MlpPolicy, env, verbose=0, prioritized_replay=True)
+model = DQN(DQNPolicy, env, verbose=0)
 # Train the agent
 model.learn(total_timesteps=10)
 end = time.time()

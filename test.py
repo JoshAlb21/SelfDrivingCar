@@ -23,12 +23,12 @@ print(obs, reward, done, info)
 
 model = DQN(DQNPolicy, env, verbose=0)
 # Train the agent
-model.learn(total_timesteps=10)
+model.learn(total_timesteps=100_000)
 end = time.time()
 
 obs = env.reset()
 while True:
-    action, _states = model.predict(obs)
+    action, _states = model.predict(obs, deterministic=True)
     obs, rewards, done, info = env.step(action)
     env.render()
     # print(action)

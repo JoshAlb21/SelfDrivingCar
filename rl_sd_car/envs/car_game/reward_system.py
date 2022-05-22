@@ -38,7 +38,7 @@ class RewardAccount:
     total_account: float
     rewards: list
     latest_rewards: float
-    vel_factor = 100
+    vel_factor = 200
 
     def __init__(self):
         self.rewards = []
@@ -63,15 +63,16 @@ class RewardAccount:
         return self.rewards
 
     def update_reward_account(self, on_track: bool, collision: bool, check_point: bool, velocity_x: float, max_velocity_x: float):
+        'Define the reward function'
 
         rewards = []
         if on_track:
-            rewards.append(RewardType(+1, 'on_track'))
+            rewards.append(RewardType(0.0, 'on_track')) #not too high otherwise agent will not move at all
         else:
-            rewards.append(RewardType(-10, 'off_track'))
+            rewards.append(RewardType(-20.0, 'off_track'))
         if collision:
-            rewards.append(RewardType(-1, 'collision'))
-        if check_point:
+            rewards.append(RewardType(-10.0, 'collision'))
+        if check_point: #TODO add check points
             rewards.append(RewardType(+1, 'check_point'))
 
         velocity_reward = velocity_x/max_velocity_x*self.vel_factor

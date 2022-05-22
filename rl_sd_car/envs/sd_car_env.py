@@ -1,3 +1,4 @@
+import re
 import gym
 from gym import error, spaces, utils
 from gym.utils import seeding
@@ -5,6 +6,7 @@ from gym.utils import seeding
 import numpy as np
 from typing import Tuple
 import time
+from statistics import mean
 
 from rl_sd_car.envs.car_game import game
 
@@ -18,7 +20,7 @@ class SdCarEnv(gym.Env):
         super().__init__()
         self.environment = game.create_game()
         self.environment.init_game()
-        self.action_space = spaces.Discrete(6,)
+        self.action_space = spaces.Discrete(5,)
         high: np.array = np.array([20.0, 360.0, 1.0, 1.0])
         observation_hist: list = []
         # assumption: no negative velocity
@@ -42,12 +44,26 @@ class SdCarEnv(gym.Env):
         return reward
 
     def check_done(self):
+        #TODO add a time buffer in beginning after recent reset to give the agent a chance
         done = False
+        n_last_steps = 1000
+        mean_threshold = 0.1
+        vel_history = self.environment.car.get_velocity_norm_history(n_last_steps)
+        #print(f'Vel history{mean(vel_history)}')
+        vel_cond = len(vel_history)>(n_last_steps-1) and mean(vel_history) < mean_threshold
+        track_history = self.environment.car.get_on_track_history(n_last_steps)
+        track_cond = sum(track_history)==0 #False is eqal to zero
+
+        if vel_cond or track_cond: done = True
+        
         return done
 
     def reset(self):
         self.environment.action_handler.reset_to_start(self.environment.car)
         observation = self.environment.get_rl_observation(disable_dist=True)
+        self.environment.car.update_velocity_norm_history(reset_list=True)
+        self.environment.car.update_on_track(on_track=False, reset_list=True)
+        print('********************RESET********************')
 
         return observation
 

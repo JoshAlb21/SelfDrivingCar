@@ -3,6 +3,7 @@ import numpy as np
 import gym
 from gym import envs
 import time
+import os
 
 from stable_baselines3 import DQN
 from stable_baselines3.dqn.policies import DQNPolicy
@@ -24,6 +25,11 @@ print(obs, reward, done, info)
 model = DQN(DQNPolicy, env, verbose=0)
 # Train the agent
 model.learn(total_timesteps=100_000)
+
+model_name = "dqn_rl_car1"
+model_dir = os.path.join(os.path.dirname(__file__), 'model', model_name)
+model.save(model_dir)
+
 end = time.time()
 
 obs = env.reset()

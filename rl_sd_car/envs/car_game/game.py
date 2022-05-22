@@ -209,7 +209,7 @@ class Game:
 
         # Reinforcement Stuff
         self.reward_account.update_reward_account(
-            on_track, col, check_point=False, velocity_x=self.car.velocity[0], 
+            on_track, col, check_point=False, velocity_x=self.car.velocity[0], velocity_y=self.car.velocity[1],
             max_velocity_x=self.car.max_velocity)
 
         # Drawing

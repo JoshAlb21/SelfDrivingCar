@@ -50,7 +50,7 @@ model.save(model_dir)
 end = time.time()
 
 obs = env.reset()
-while True:
+while True: #TODO update with https://github.com/DLR-RM/stable-baselines3/issues/224
     action, _states = model.predict(obs, deterministic=True)
     obs, rewards, done, info = env.step(action)
     env.render()

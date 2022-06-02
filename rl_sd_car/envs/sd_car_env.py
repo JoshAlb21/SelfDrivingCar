@@ -21,10 +21,10 @@ class SdCarEnv(gym.Env):
         self.environment = game.create_game()
         self.environment.init_game()
         self.action_space = spaces.Discrete(5,)
-        high: np.array = np.array([20.0, 360.0, 1.0, 1.0])
+        high: np.array = np.array([20.0, 360.0, 300.0, 300.0, 300.0])
         observation_hist: list = []
         # assumption: no negative velocity
-        low: np.array = np.array([0.0, 0.0, 0.0, 0.0])
+        low: np.array = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
         self.observation_space = spaces.Box(low, high, dtype=np.float32)
 
     def step(self, action) -> Tuple[np.array, float, bool, dict]:

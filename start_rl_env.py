@@ -12,6 +12,7 @@ from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.results_plotter import plot_results
 from stable_baselines3.common import results_plotter
 from stable_baselines3.common.noise import NormalActionNoise
+from stable_baselines3.common.evaluation import evaluate_policy
 
 from callback.reward_callback import SaveOnBestTrainingRewardCallback
 
@@ -36,9 +37,10 @@ n_actions = env.action_space.n
 action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.1 * np.ones(n_actions))
 model = DQN(DQNPolicy, env, verbose=4)
 model.action_noise = action_noise #Somehow does not work with init
-time_steps = 100_000
+time_steps = 500_000
 # Train the agent
 callback = SaveOnBestTrainingRewardCallback(check_freq=100, log_dir=log_dir)
+start_train = time.time()
 model.learn(total_timesteps= time_steps, callback=callback)
 model_name = "dqn_rl_car1"
 model_dir = os.path.join(os.path.dirname(__file__), 'model', model_name)
@@ -47,7 +49,8 @@ model.save(model_dir)
 #plot_results([log_dir], time_steps, results_plotter.X_TIMESTEPS, "RL Car") #TODO not working yet
 #plt.show()
 
-end = time.time()
+end_train = time.time()
+print(f'Time to train: {end_train-start_train}')
 
 obs = env.reset()
 while True: #TODO update with https://github.com/DLR-RM/stable-baselines3/issues/224

@@ -144,7 +144,7 @@ class Game:
         rl_action = self.pos_action_list[self.rl_action-1]
         return rl_action
 
-    def get_rl_observation(self, disable_dist: bool = False) -> Tuple[float, float, float, float]:
+    def get_rl_observation(self, disable_dist: bool = False) -> Tuple[float, float, float, float, float]:
 
         velocity = hypot(self.car.velocity[0], self.car.velocity[1])
         angle = self.car.angle
@@ -153,10 +153,12 @@ class Game:
                 self.car, self)
             dist2 = self.car.sensor2.get_dist_to_wall(
                 self.car, self)
+            dist3 = self.car.sensor3.get_dist_to_wall(
+                self.car, self)
         else:
-            dist1, dist2 = (1.0, 1.0)
+            dist1, dist2, dist3 = (1.0, 1.0, 1.0)
 
-        return velocity, angle, dist1, dist2
+        return velocity, angle, dist1, dist2, dist3
 
     def init_game(self):
         ''' Initiate all necessary functions and modules'''
@@ -219,6 +221,7 @@ class Game:
         # Draw sensor lines
         self.car.sensor1.draw_sensor_line(self.car, self.screen)
         self.car.sensor2.draw_sensor_line(self.car, self.screen)
+        self.car.sensor3.draw_sensor_line(self.car, self.screen)
 
         self.car.sensor1.get_dist_to_wall(
             self.car, self)

@@ -45,8 +45,9 @@ class Car:
         self.l_f_corner = Vector2(0.0, 0.0)
         self.r_f_corner = Vector2(0.0, 0.0)
         self.angle_differ = 0
-        self.sensor1 = DistSensor('sensor1', 'left', 300)
-        self.sensor2 = DistSensor('sensor2', 'right', 300)
+        self.sensor1 = DistSensor('sensor1', 'left_front', 300)
+        self.sensor2 = DistSensor('sensor2', 'right_front', 300)
+        self.sensor3 = DistSensor('sensor3', 'left', 300)
     
     def get_velocity_norm_history(self, n_max:int=100) -> list:
         'Returns the velocity norm of the last times steps (maximum n last time steps)'
@@ -100,6 +101,8 @@ class Car:
         self.sensor1.calc_sensor_pos(self, tan(self.car_width/self.car_length))
         self.sensor2.calc_sensor_pos(
             self, tan(self.car_width / self.car_length))
+        self.sensor3.calc_sensor_pos(
+            self, tan(self.car_width / self.car_length))
 
         if self.steering:
             turning_radius = self.length / sin(radians(self.steering))
@@ -135,21 +138,25 @@ class DistSensor:  # TODO hier weiter machen
     def calc_sensor_pos(self, car: Car, angle):
 
         sensor = Vector2(0.0, 0.0)
-        if self.side == "left":
+        if self.side == "left_front":
             sensor.x = car.position.x * car.ppu + \
                 cos(radians(car.angle) + tan(car.car_width /
                     car.car_length)) * int(self.sensor_length)
             sensor.y = car.position.y * car.ppu - \
                 sin(radians(car.angle) + tan(car.car_width /
                     car.car_length)) * int(self.sensor_length)
-        elif self.side == "right":
+        elif self.side == "right_front":
             sensor.x = car.position.x * car.ppu + \
                 cos(radians(car.angle) - tan(car.car_width /
                     car.car_length)) * int(self.sensor_length)
             sensor.y = car.position.y * car.ppu - \
                 sin(radians(car.angle) - tan(car.car_width /
                     car.car_length)) * int(self.sensor_length)
-
+        elif self.side == 'left':
+            sensor.x = car.position.x * car.ppu + \
+                cos(radians(car.angle)) * int(self.sensor_length)
+            sensor.y = car.position.y * car.ppu - \
+                sin(radians(car.angle)) * int(self.sensor_length)
         self.sensor_pos = sensor
 
         return sensor

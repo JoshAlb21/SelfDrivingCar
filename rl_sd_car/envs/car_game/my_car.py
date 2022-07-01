@@ -100,9 +100,9 @@ class Car:
         # compute sensor position, and vectorized line
         self.sensor1.calc_sensor_pos(self, tan(self.car_width/self.car_length))
         self.sensor2.calc_sensor_pos(
-            self, tan(self.car_width / self.car_length))
+            self, -tan(self.car_width / self.car_length))
         self.sensor3.calc_sensor_pos(
-            self, tan(self.car_width / self.car_length))
+            self, 0.0)
 
         if self.steering:
             turning_radius = self.length / sin(radians(self.steering))
@@ -135,29 +135,18 @@ class DistSensor:  # TODO hier weiter machen
     def get_sensor_pos(self):
         return self.sensor_pos
 
-    def calc_sensor_pos(self, car: Car, angle):
+    def calc_sensor_pos(self, car: Car, add_angle):
 
         sensor = Vector2(0.0, 0.0)
-        if self.side == "left_front":
-            sensor.x = car.position.x * car.ppu + \
-                cos(radians(car.angle) + tan(car.car_width /
-                    car.car_length)) * int(self.sensor_length)
-            sensor.y = car.position.y * car.ppu - \
-                sin(radians(car.angle) + tan(car.car_width /
-                    car.car_length)) * int(self.sensor_length)
-        elif self.side == "right_front":
-            sensor.x = car.position.x * car.ppu + \
-                cos(radians(car.angle) - tan(car.car_width /
-                    car.car_length)) * int(self.sensor_length)
-            sensor.y = car.position.y * car.ppu - \
-                sin(radians(car.angle) - tan(car.car_width /
-                    car.car_length)) * int(self.sensor_length)
-        elif self.side == 'left':
-            sensor.x = car.position.x * car.ppu + \
-                cos(radians(car.angle)) * int(self.sensor_length)
-            sensor.y = car.position.y * car.ppu - \
-                sin(radians(car.angle)) * int(self.sensor_length)
-        self.sensor_pos = sensor
+
+        start_point_x = car.position.x * car.ppu
+        start_point_y = car.position.y * car.ppu
+        car_angle = radians(car.angle)
+
+        sensor.x = start_point_x + \
+                cos(car_angle + add_angle) * int(self.sensor_length)
+        sensor.y = start_point_y - \
+                sin(radians(car.angle) + add_angle) * int(self.sensor_length)
 
         return sensor
 

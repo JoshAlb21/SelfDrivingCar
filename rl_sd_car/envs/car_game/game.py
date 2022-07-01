@@ -84,9 +84,6 @@ class Game:
 
     def key_arrow_handler(self, pressed, dt, action: str = ''):
 
-        #TEST
-        #print(f"Action_training: {action}")
-
         #TODO write update acc function or lambda
         if pressed is None and not self.input_human:
             pressed = pygame.MOUSEBUTTONDOWN
@@ -110,7 +107,6 @@ class Game:
                 except ZeroDivisionError:
                     self.car.acceleration
         elif pressed[pygame.K_BACKSPACE] or action == 'reset':
-            #self.car.position = Vector2(self.car.reset_point)
             self.action_handler.reset_to_start(self.car)
         else:
             if abs(self.car.velocity.x) > dt * self.car.free_deceleration:
@@ -119,7 +115,7 @@ class Game:
             else:
                 if dt != 0:
                     self.car.acceleration = -self.car.velocity.x / dt
-        # restrict acc (otherwise acc would increase infinetly)
+        # restrict acc (otherwise acc would increase infinitely)
         self.car.acceleration = max(-self.car.max_acceleration,
                                     min(self.car.acceleration, self.car.max_acceleration))
 
@@ -225,7 +221,7 @@ class Game:
 
         self.car.sensor1.get_dist_to_wall(
             self.car, self)
-        # self.car.sensor1._get_y_differ(self.car)
+        
         # New Car Position
         rotated = pygame.transform.rotate(
             self.car.car_image, self.car.angle)

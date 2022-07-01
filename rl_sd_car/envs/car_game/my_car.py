@@ -1,9 +1,11 @@
+from subprocess import list2cmdline
 from pygame.math import Vector2
 import pygame
 from math import sin, cos, tan, sqrt, radians, degrees, copysign, pi, radians
 from numpy import ones, vstack
 from numpy.linalg import lstsq
 import numpy as np
+import math
 
 
 class Car:
@@ -17,6 +19,7 @@ class Car:
         self.position = Vector2(x, y)  # without ppu
         self.last_track_position = Vector2(0, 0)  # position 1 frame ago
         self.velocity = Vector2(0.0, 0.0)  # m/sec
+        self.vel_history = []
         self.angle = angle  # degrees
         self.length = length  # meter kleinerer Wendekreis
         self.max_acceleration = max_acceleration  # meters/second squared
@@ -30,6 +33,8 @@ class Car:
         self.reset_point = x, y
         self.ppu = ppu
 
+        self.on_track: bool
+        self.on_track_hist_list = []
         self.not_on_track_fee = (2.0, 0)
         self.max_vel_off_track = (5.0, 0)
 
@@ -40,12 +45,40 @@ class Car:
         self.l_f_corner = Vector2(0.0, 0.0)
         self.r_f_corner = Vector2(0.0, 0.0)
         self.angle_differ = 0
-        self.sensor1 = DistSensor('sensor1', 'left', 300)
-        self.sensor2 = DistSensor('sensor2', 'right', 300)
+        self.sensor1 = DistSensor('sensor1', 'left_front', 300)
+        self.sensor2 = DistSensor('sensor2', 'right_front', 300)
+        self.sensor3 = DistSensor('sensor3', 'left', 300)
+    
+    def get_velocity_norm_history(self, n_max:int=100) -> list:
+        'Returns the velocity norm of the last times steps (maximum n last time steps)'
+        self.update_velocity_norm_history() #TODO should be updated in game loop
+        if len(self.vel_history) > n_max: self.vel_history.pop(0)
+
+        return self.vel_history
+
+    def update_velocity_norm_history(self, reset_list:bool=False):
+        if reset_list:
+            self.vel_history = []
+        vel_vec = np.array([self.velocity.x, self.velocity.y])
+        vel_norm = np.linalg.norm(vel_vec)
+        self.vel_history.append(vel_norm)
 
     def handle_not_on_track(self):
         if self.velocity.x >= self.max_vel_off_track[0] and self.velocity.y >= self.max_vel_off_track[1] and self.velocity[0] > 0:
             self.velocity -= self.not_on_track_fee
+    
+    def update_on_track(self, on_track:bool, reset_list:bool=False):
+        if reset_list:
+            self.on_track_hist_list = []
+        self.on_track = on_track
+        self.on_track_hist_list.append(on_track)
+
+    def get_on_track_history(self, n_max:int=100) -> list:
+        'Returns the on_track bool of the last times steps (maximum n last time steps)'
+        if len(self.on_track_hist_list) > n_max:
+            self.on_track_hist_list.pop(0)
+        
+        return self.on_track_hist_list
 
     def update(self, dt):  # update every frame
         # integrate to velocity, no sideways acceleration
@@ -68,6 +101,8 @@ class Car:
         self.sensor1.calc_sensor_pos(self, tan(self.car_width/self.car_length))
         self.sensor2.calc_sensor_pos(
             self, tan(self.car_width / self.car_length))
+        self.sensor3.calc_sensor_pos(
+            self, tan(self.car_width / self.car_length))
 
         if self.steering:
             turning_radius = self.length / sin(radians(self.steering))
@@ -76,7 +111,10 @@ class Car:
             angular_velocity = 0
 
         self.position += self.velocity.rotate(-self.angle) * dt
+
         self.angle += degrees(angular_velocity) * dt
+        map_to_360 = lambda total_angle: total_angle - 360.0 * math.floor(total_angle/360.0)
+        self.angle = map_to_360(self.angle)
 
 
 class DistSensor:  # TODO hier weiter machen
@@ -100,21 +138,25 @@ class DistSensor:  # TODO hier weiter machen
     def calc_sensor_pos(self, car: Car, angle):
 
         sensor = Vector2(0.0, 0.0)
-        if self.side == "left":
+        if self.side == "left_front":
             sensor.x = car.position.x * car.ppu + \
                 cos(radians(car.angle) + tan(car.car_width /
                     car.car_length)) * int(self.sensor_length)
             sensor.y = car.position.y * car.ppu - \
                 sin(radians(car.angle) + tan(car.car_width /
                     car.car_length)) * int(self.sensor_length)
-        elif self.side == "right":
+        elif self.side == "right_front":
             sensor.x = car.position.x * car.ppu + \
                 cos(radians(car.angle) - tan(car.car_width /
                     car.car_length)) * int(self.sensor_length)
             sensor.y = car.position.y * car.ppu - \
                 sin(radians(car.angle) - tan(car.car_width /
                     car.car_length)) * int(self.sensor_length)
-
+        elif self.side == 'left':
+            sensor.x = car.position.x * car.ppu + \
+                cos(radians(car.angle)) * int(self.sensor_length)
+            sensor.y = car.position.y * car.ppu - \
+                sin(radians(car.angle)) * int(self.sensor_length)
         self.sensor_pos = sensor
 
         return sensor

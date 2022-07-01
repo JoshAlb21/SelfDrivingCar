@@ -40,7 +40,7 @@ class Game:
         self.input_human = input_human
         self.rl_action = None
         self.pos_action_list = ["up", "down",
-                                "left", "right", "brake", "nothing"]
+                                "left", "right", "brake" ] #TEST remove "nothing"
 
         pygame.font.init()
         self.myfont = pygame.font.SysFont('Comic Sans MS', 30)
@@ -84,6 +84,10 @@ class Game:
 
     def key_arrow_handler(self, pressed, dt, action: str = ''):
 
+        #TEST
+        #print(f"Action_training: {action}")
+
+        #TODO write update acc function or lambda
         if pressed is None and not self.input_human:
             pressed = pygame.MOUSEBUTTONDOWN
         if pressed[pygame.K_UP] or action == 'up':
@@ -101,7 +105,10 @@ class Game:
                 self.car.acceleration = - \
                     copysign(self.car.brake_deceleration, self.car.velocity.x)
             else:
-                self.car.acceleration = -self.car.velocity.x / dt
+                try:
+                    self.car.acceleration = -self.car.velocity.x / dt
+                except ZeroDivisionError:
+                    self.car.acceleration
         elif pressed[pygame.K_BACKSPACE] or action == 'reset':
             #self.car.position = Vector2(self.car.reset_point)
             self.action_handler.reset_to_start(self.car)
@@ -131,7 +138,13 @@ class Game:
         else:
             print("No valid action")
 
-    def get_rl_observation(self, disable_dist: bool = False) -> Tuple[float, float, float, float]:
+    def get_rl_action(self) -> str:
+        'Gets the action integer number and converts it in action string'
+
+        rl_action = self.pos_action_list[self.rl_action-1]
+        return rl_action
+
+    def get_rl_observation(self, disable_dist: bool = False) -> Tuple[float, float, float, float, float]:
 
         velocity = hypot(self.car.velocity[0], self.car.velocity[1])
         angle = self.car.angle
@@ -140,10 +153,12 @@ class Game:
                 self.car, self)
             dist2 = self.car.sensor2.get_dist_to_wall(
                 self.car, self)
+            dist3 = self.car.sensor3.get_dist_to_wall(
+                self.car, self)
         else:
-            dist1, dist2 = (1.0, 1.0)
+            dist1, dist2, dist3 = (1.0, 1.0, 1.0)
 
-        return velocity, angle, dist1, dist2
+        return velocity, angle, dist1, dist2, dist3
 
     def init_game(self):
         ''' Initiate all necessary functions and modules'''
@@ -177,12 +192,13 @@ class Game:
             self.key_arrow_handler(pressed, dt)
         else:
             action = self.get_rl_action()
-            pressed = pygame.key.get_pressed()
+            pressed = pygame.key.get_pressed() #just a dummy to call the self.key_arrow_handler function
             self.key_arrow_handler(pressed, dt, action)
         white_p, corner_p, green_p = self.background_pixel
         col = self.collision_detection(corner_p)
         self.env_handler.check_border()
         on_track = self.env_handler.check_on_track(self, white_p)
+        self.car.update_on_track(on_track)
         self.car.update(dt)
         # if not on track
         if not on_track:
@@ -195,7 +211,8 @@ class Game:
 
         # Reinforcement Stuff
         self.reward_account.update_reward_account(
-            on_track, col, check_point=False, velocity_x=self.car.velocity[0], max_velocity_x=self.car.max_velocity)
+            on_track, col, check_point=False, velocity_x=self.car.velocity[0], velocity_y=self.car.velocity[1],
+            max_velocity_x=self.car.max_velocity)
 
         # Drawing
         self.screen.fill([255, 255, 255])
@@ -204,6 +221,7 @@ class Game:
         # Draw sensor lines
         self.car.sensor1.draw_sensor_line(self.car, self.screen)
         self.car.sensor2.draw_sensor_line(self.car, self.screen)
+        self.car.sensor3.draw_sensor_line(self.car, self.screen)
 
         self.car.sensor1.get_dist_to_wall(
             self.car, self)

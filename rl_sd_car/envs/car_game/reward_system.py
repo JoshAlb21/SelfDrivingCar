@@ -1,4 +1,5 @@
 from typing import List
+import numpy as np
 
 
 class CheckPoint:
@@ -38,7 +39,7 @@ class RewardAccount:
     total_account: float
     rewards: list
     latest_rewards: float
-    vel_factor = 100
+    vel_factor = 200
 
     def __init__(self):
         self.rewards = []
@@ -62,19 +63,22 @@ class RewardAccount:
     def get_list_of_rewards(self):
         return self.rewards
 
-    def update_reward_account(self, on_track: bool, collision: bool, check_point: bool, velocity_x: float, max_velocity_x: float):
+    def update_reward_account(self, on_track: bool, collision: bool, check_point: bool, velocity_x: float, velocity_y: float, max_velocity_x: float):
+        'Define the reward function'
 
         rewards = []
         if on_track:
-            rewards.append(RewardType(+1, 'on_track'))
+            rewards.append(RewardType(0.0, 'on_track')) #not too high otherwise agent will not move at all
         else:
-            rewards.append(RewardType(-10, 'off_track'))
+            rewards.append(RewardType(-20.0, 'off_track'))
         if collision:
-            rewards.append(RewardType(-1, 'collision'))
-        if check_point:
+            rewards.append(RewardType(-10.0, 'collision'))
+        if check_point: #TODO add check points
             rewards.append(RewardType(+1, 'check_point'))
 
-        velocity_reward = velocity_x/max_velocity_x*self.vel_factor
+        vel_vec = np.array([velocity_x, velocity_y])
+        vel_norm = np.linalg.norm(vel_vec)
+        velocity_reward = vel_norm/max_velocity_x*self.vel_factor #TODO add hear max_vel y
         rewards.append(RewardType(velocity_reward, 'vel_bonus'))
 
         self.latest_rewards = rewards

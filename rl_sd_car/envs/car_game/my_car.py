@@ -6,6 +6,7 @@ from numpy import ones, vstack
 from numpy.linalg import lstsq
 import numpy as np
 import math
+from typing import List
 
 
 class Car:
@@ -42,12 +43,15 @@ class Car:
         self.acceleration = 0.0
         self.steering = 0.0  # deegres positive-left, negative-right
 
-        self.l_f_corner = Vector2(0.0, 0.0)
-        self.r_f_corner = Vector2(0.0, 0.0)
         self.angle_differ = 0
-        self.sensor1 = DistSensor('sensor1', 'left_front', 300)
-        self.sensor2 = DistSensor('sensor2', 'right_front', 300)
-        self.sensor3 = DistSensor('sensor3', 'left', 300)
+        self.sensor1 = DistSensor('left_front', 300, tan(self.car_width/self.car_length))
+        self.sensor2 = DistSensor('left_middle', 300, 0.5*tan(self.car_width/self.car_length))
+        self.sensor3 = DistSensor('front', 300, 0.0)
+        self.sensor4 = DistSensor('right_middle', 300, -0.5*tan(self.car_width/self.car_length))
+        self.sensor5 = DistSensor('right_front', 300, -tan(self.car_width / self.car_length))
+        sensor_list = [self.sensor1, self.sensor2, self.sensor3, self.sensor4, self.sensor5]
+        self.sensor_manager = DistSensorManager(sensor_list)
+        
     
     def get_velocity_norm_history(self, n_max:int=100) -> list:
         'Returns the velocity norm of the last times steps (maximum n last time steps)'
@@ -86,23 +90,8 @@ class Car:
         self.velocity.x = max(-self.max_velocity,
                               min(self.velocity.x, self.max_velocity))
 
-        # Left front corner
-        self.l_f_corner.x = self.position.x * self.ppu + cos(radians(self.angle) + tan(
-            self.car_width/self.car_length)) * int(sqrt(pow(self.car_length / 2, 2) + pow(self.car_width / 2, 2)))
-        self.l_f_corner.y = self.position.y * self.ppu - sin(radians(self.angle) + tan(
-            self.car_width/self.car_length)) * int(sqrt(pow(self.car_length / 2, 2) + pow(self.car_width / 2, 2)))
-        # Right front corner
-        self.r_f_corner.x = self.position.x * self.ppu + cos(radians(self.angle) - tan(
-            self.car_width / self.car_length)) * int(sqrt(pow(self.car_length / 2, 2) + pow(self.car_width / 2, 2)))
-        self.r_f_corner.y = self.position.y * self.ppu - sin(radians(self.angle) - tan(
-            self.car_width / self.car_length)) * int(sqrt(pow(self.car_length / 2, 2) + pow(self.car_width / 2, 2)))
-
         # compute sensor position, and vectorized line
-        self.sensor1.calc_sensor_pos(self, tan(self.car_width/self.car_length))
-        self.sensor2.calc_sensor_pos(
-            self, -tan(self.car_width / self.car_length))
-        self.sensor3.calc_sensor_pos(
-            self, 0.0)
+        self.sensor_manager.update_sensor_positions(self)
 
         if self.steering:
             turning_radius = self.length / sin(radians(self.steering))
@@ -117,36 +106,37 @@ class Car:
         self.angle = map_to_360(self.angle)
 
 
-class DistSensor:  # TODO hier weiter machen
+class DistSensor:
 
     name: str
-    side: str  # left oder right
-    sensor_pos: Vector2  # with ppu
+    sensor_pos: Vector2
     sensor_length: int
-    wall_pix_color: tuple
+    wall_pix_color: tuple # Default: black
+    add_angle: float
 
-    def __init__(self, name, side, sensor_length, wall_pix_color: tuple = (0, 0, 0)):
+    def __init__(self, name, sensor_length, add_angle, wall_pix_color: tuple = (0, 0, 0)):
 
         self.name = name
-        self.side = side
         self.sensor_length = sensor_length
         self.wall_pix_color = wall_pix_color
+        self.add_angle = add_angle
 
     def get_sensor_pos(self):
         return self.sensor_pos
 
-    def calc_sensor_pos(self, car: Car, add_angle):
+    def calc_sensor_pos(self, car: Car):
 
         sensor = Vector2(0.0, 0.0)
 
+        # with ppu
         start_point_x = car.position.x * car.ppu
         start_point_y = car.position.y * car.ppu
         car_angle = radians(car.angle)
 
         sensor.x = start_point_x + \
-                cos(car_angle + add_angle) * int(self.sensor_length)
+                cos(car_angle + self.add_angle) * int(self.sensor_length)
         sensor.y = start_point_y - \
-                sin(radians(car.angle) + add_angle) * int(self.sensor_length)
+                sin(radians(car.angle) + self.add_angle) * int(self.sensor_length)
 
         self.sensor_pos = sensor
 
@@ -156,8 +146,8 @@ class DistSensor:  # TODO hier weiter machen
         pygame.draw.line(screen, (0, 255, 0), car.position *
                          car.ppu, self.get_sensor_pos())
 
-    def get_dist_to_wall(self, car, game):
-        'calculate distance to wall and multiply by sensor_length'
+    def get_dist_to_wall(self, car:Car, game):
+        'Calculate distance to wall and multiply by sensor_length'
 
         temp_pos = car.position*car.ppu
         car_pos = tuple(map(int, temp_pos))
@@ -198,3 +188,30 @@ class DistSensor:  # TODO hier weiter machen
             return np.c_[np.round(np.linspace(ends[0, 0], ends[1, 0], d1+1))
                          .astype(np.int32),
                          np.linspace(ends[0, 1], ends[1, 1], d1+1, dtype=np.int32)]
+
+
+class DistSensorManager:
+
+    all_dist_sensors: list
+
+    def __init__(self):
+        self.all_dist_sensors = []
+
+    def add_sensors(self, sensor:List[DistSensor]):
+        self.all_dist_sensors.extend(sensor)
+
+    def update_sensor_positions(self, car:Car):
+        'Updates the sensor position for each sensor in its list of sensors'
+        for sensor in self.all_dist_sensors:
+            sensor.calc_sensor_pos(car)
+    
+    def draw_sensor_lines(self, car:Car, screen:pygame.Surface):
+        for sensor in self.all_dist_sensors:
+            sensor.draw_sensor_line(car, screen)
+    
+    def get_distances(self, car:Car, game):
+        'Calculate distance to wall for all sensors'
+        distances = []
+        for sensor in self.all_dist_sensors:
+            distances.append(sensor.get_dist_to_wall(car, game))
+        return distances

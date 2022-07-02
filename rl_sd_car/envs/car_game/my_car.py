@@ -194,8 +194,8 @@ class DistSensorManager:
 
     all_dist_sensors: list
 
-    def __init__(self):
-        self.all_dist_sensors = []
+    def __init__(self, sensor_list:list = []):
+        self.all_dist_sensors = sensor_list
 
     def add_sensors(self, sensor:List[DistSensor]):
         self.all_dist_sensors.extend(sensor)

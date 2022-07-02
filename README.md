@@ -1,7 +1,7 @@
 PROJEKT IST AKTUELL IN ARBEIT
 WORK IN PROGRESS
 
-[![Product Name Screen Shot][product-screenshot]]
+[![Product Name Screen Shot][product-screenshot]](https://www.pygame.org/news)
 
 # Parameter
 ppu: pixel per unit ratio

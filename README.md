@@ -1,6 +1,13 @@
 PROJEKT IST AKTUELL IN ARBEIT
 WORK IN PROGRESS
 
+<br />
+<div align="center">
+  <a href="https://github.com/github_username/repo_name">
+    <img src="images/env_road.png" alt="Logo" width="80" height="80">
+  </a>
+</div>
+
 # Parameter
 ppu: pixel per unit ratio
 pixel_length of car/meter length of car

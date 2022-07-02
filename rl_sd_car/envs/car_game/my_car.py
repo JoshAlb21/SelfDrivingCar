@@ -148,6 +148,8 @@ class DistSensor:  # TODO hier weiter machen
         sensor.y = start_point_y - \
                 sin(radians(car.angle) + add_angle) * int(self.sensor_length)
 
+        self.sensor_pos = sensor
+
         return sensor
 
     def draw_sensor_line(self, car, screen):

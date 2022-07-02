@@ -53,7 +53,7 @@ end_train = time.time()
 print(f'Time to train: {end_train-start_train}')
 
 obs = env.reset()
-while True: #TODO update with https://github.com/DLR-RM/stable-baselines3/issues/224
+while True:
     action, _states = model.predict(obs, deterministic=True)
     obs, rewards, done, info = env.step(action)
     env.render()

@@ -7,8 +7,18 @@ WORK IN PROGRESS
 # Explanation
 
 ## Distance Sensor
-The green lines represent the distance sensors. Their origin is in the center of the vehicle. They calculate the distance from the vehicle to the lane marking (here in black). The distance is calculated via the intersection of the sensor line (corresponds to a vector in 2D) with the approximated border line. If the sensor does not find an intersection point, the sensor value is set to a default value (e.g. -1).
+The green lines represent the distance sensors. Their origin is in the center of the vehicle. They calculate the distance from the vehicle to the lane marking (here in black). The distance is calculated via the intersection of the sensor line (corresponds to a vector in 2D) with the approximated border line. If the sensor does not find an intersection point, the sensor value is set to a default value (e.g. -1).<br>
 Later we can use the distance information for the implementation of the reinforcement model. The agent needs information (observations) about our custom environment.
+
+## Steering
+Who is driving the car? The car can be controlled manually. In addition, a mode can be activated in which the RL agent controls the car to get the maximum reward (currently being trained).
+
+## Reinforcement Learning
+
+The information available to the agent (as observations):
+* vehicle speed
+* rotation around the vehicle vertical axis (Gierrate / yaw angle)
+* distances of the sensors (number can be increased as desired)
 
 # Parameter
 ppu: pixel per unit ratio

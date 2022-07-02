@@ -1,12 +1,7 @@
 PROJEKT IST AKTUELL IN ARBEIT
 WORK IN PROGRESS
 
-<br />
-<div align="center">
-  <a href="https://github.com/github_username/repo_name">
-    <img src="images/env_road.png" alt="Logo" width="2563" height="1621">
-  </a>
-</div>
+[![Product Name Screen Shot][product-screenshot]]
 
 # Parameter
 ppu: pixel per unit ratio

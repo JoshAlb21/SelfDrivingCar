@@ -44,12 +44,14 @@ class Car:
         self.steering = 0.0  # deegres positive-left, negative-right
 
         self.angle_differ = 0
-        self.sensor1 = DistSensor('left_front', 300, tan(self.car_width/self.car_length))
-        self.sensor2 = DistSensor('left_middle', 300, 0.5*tan(self.car_width/self.car_length))
-        self.sensor3 = DistSensor('front', 300, 0.0)
-        self.sensor4 = DistSensor('right_middle', 300, -0.5*tan(self.car_width/self.car_length))
-        self.sensor5 = DistSensor('right_front', 300, -tan(self.car_width / self.car_length))
-        sensor_list = [self.sensor1, self.sensor2, self.sensor3, self.sensor4, self.sensor5]
+        self.sensor1 = DistSensor('left', 300, tan(self.car_width/self.car_length))
+        self.sensor2 = DistSensor('left_middle', 300, 0.7*tan(self.car_width/self.car_length))
+        self.sensor3 = DistSensor('left_front', 300, 0.3*tan(self.car_width/self.car_length))
+        self.sensor4 = DistSensor('front', 300, 0.0)
+        self.sensor5 = DistSensor('right_middle', 300, -0.3*tan(self.car_width/self.car_length))
+        self.sensor6 = DistSensor('right_front', 300, -0.7*tan(self.car_width / self.car_length))
+        self.sensor7 = DistSensor('right', 300, -tan(self.car_width / self.car_length))
+        sensor_list = [self.sensor1, self.sensor2, self.sensor3, self.sensor4, self.sensor5, self.sensor6, self.sensor7]
         self.sensor_manager = DistSensorManager(sensor_list)
         
     
@@ -173,7 +175,7 @@ class DistSensor:
                                  == self.wall_pix_color)[0][0]
             normalized_index = itemindex/line_points.shape[0]
         except IndexError:  # out of sensor distance
-            normalized_index = -1
+            normalized_index = line_points.shape[0]
         distance_to_wall = normalized_index * self.sensor_length
 
         return distance_to_wall

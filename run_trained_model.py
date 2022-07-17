@@ -11,12 +11,15 @@ model = DQN.load(model_dir)
 obs = env.reset()
 n_episodes = 3000
 current_episode = 0
-while current_episode < n_episodes:
-    action, _states = model.predict(obs, deterministic=True)
-    obs, rewards, done, info = env.step(action)
-    env.render()
-    print(f"Action_test: {action}")
-    print(obs)
-    print(rewards)
-    if done:
-        current_episode += 1
+
+for i in range(n_episodes):
+    while True:
+        action, _states = model.predict(obs, deterministic=True)
+        obs, rewards, done, info = env.step(action)
+        env.render()
+        print(f"Action_test: {action}")
+        print(obs)
+        print(rewards)
+        if done:
+            obs = env.reset()
+            break

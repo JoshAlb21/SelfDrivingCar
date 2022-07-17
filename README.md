@@ -20,6 +20,15 @@ The information available to the agent (as observations):
 * rotation around the vehicle vertical axis (Gierrate / yaw angle)
 * distances of the sensors (number can be increased as desired)
 
+## Starting Point
+random to increase generalisation
+with random speed and (random orientation)
+
+### Are we 'done'?
+How do we know that an episode (everything between an initial and terminal state) is finished ?
+If the car is not moving with a mean velocity of 0.1 over the last 1000 frame we reset the environment
+
+
 # Parameter
 ppu: pixel per unit ratio
 pixel_length of car/meter length of car

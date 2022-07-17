@@ -39,8 +39,8 @@ class Game:
         # RL related settings
         self.input_human = input_human
         self.rl_action = None
-        self.pos_action_list = ["up", "down",
-                                "left", "right", "brake" ] #TEST remove "nothing"
+        self.pos_action_list = ["up",
+                                "left", "right" ] #TEST remove "nothing", "down", "brake"
 
         pygame.font.init()
         self.myfont = pygame.font.SysFont('Comic Sans MS', 30)
@@ -145,11 +145,11 @@ class Game:
         velocity = hypot(self.car.velocity[0], self.car.velocity[1])
         angle = self.car.angle
         if not disable_dist:
-            dist1, dist2, dist3, dist4, dist5 = self.car.sensor_manager.get_distances(self.car, self)
+            dist1, dist2, dist3, dist4, dist5, dist6, dist7 = self.car.sensor_manager.get_distances(self.car, self)
         else:
-            dist1, dist2, dist3, dist4, dist5 = (1.0, 1.0, 1.0, 1.0, 1.0)
+            dist1, dist2, dist3, dist4, dist5, dist6, dist7 = (1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
         
-        return velocity, angle, dist1, dist2, dist3, dist4, dist5
+        return velocity, angle, dist1, dist2, dist3, dist4, dist5, dist6, dist7
 
     def init_game(self):
         ''' Initiate all necessary functions and modules'''

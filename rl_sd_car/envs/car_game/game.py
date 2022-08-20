@@ -106,7 +106,7 @@ class Game:
                     self.car.acceleration = -self.car.velocity.x / dt
                 except ZeroDivisionError:
                     self.car.acceleration
-        elif pressed[pygame.K_BACKSPACE] or action == 'reset':
+        elif pressed[pygame.K_BACKSPACE]:
             self.action_handler.reset_to_start(self.car)
         else:
             if abs(self.car.velocity.x) > dt * self.car.free_deceleration:

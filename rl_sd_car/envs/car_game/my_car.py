@@ -38,6 +38,7 @@ class Car:
         self.on_track_hist_list = []
         self.not_on_track_fee = (2.0, 0)
         self.max_vel_off_track = (5.0, 0)
+        self.min_vel_on_track = Vector2(2.0, 0)
 
         self.car_length, self.car_width = self.car_image.get_size()
         self.acceleration = 0.0
@@ -74,23 +75,32 @@ class Car:
             self.velocity -= self.not_on_track_fee
     
     def update_on_track(self, on_track:bool, reset_list:bool=False):
+
+        max_hist_len = 200
+
         if reset_list:
             self.on_track_hist_list = []
         self.on_track = on_track
         self.on_track_hist_list.append(on_track)
 
+        if len(self.on_track_hist_list)>= max_hist_len:
+            self.on_track_hist_list.pop(0)
+
     def get_on_track_history(self, n_max:int=100) -> list:
         'Returns the on_track bool of the last times steps (maximum n last time steps)'
-        if len(self.on_track_hist_list) > n_max:
-            self.on_track_hist_list.pop(0)
+        if len(self.on_track_hist_list) < n_max:
+            track_hist = self.on_track_hist_list
+        else:
+            track_hist = self.on_track_hist_list[-n_max:]
         
-        return self.on_track_hist_list
+        return track_hist
 
     def update(self, dt):  # update every frame
         # integrate to velocity, no sideways acceleration
         self.velocity += (self.acceleration * dt, 0)
         self.velocity.x = max(-self.max_velocity,
-                              min(self.velocity.x, self.max_velocity))
+                              min(self.velocity.x, self.max_velocity),
+                              self.min_vel_on_track.x)
 
         # compute sensor position, and vectorized line
         self.sensor_manager.update_sensor_positions(self)

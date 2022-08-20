@@ -1,4 +1,5 @@
 from pygame.math import Vector2
+import random
 
 
 class EnvironmentHandlerInputs:
@@ -36,9 +37,13 @@ class EnvironmentHandlerInputs:
 
 class EnvironmentHandlerActions:
 
-    def reset_to_start(self, car):
+    def reset_to_start(self, car, random_vel:bool=False):
 
         car.position = Vector2(car.reset_point)
-        car.velocity = Vector2(0.0, 0.0)
+        if random_vel:
+            x_vel = round(random.uniform(3, 6), 2)
+            car.velocity = Vector2(x_vel, 0.0)
+        else:
+            car.velocity = Vector2(0.0, 0.0)
         self.acceleration = 0.0
-        car.angle = 90.0
+        car.angle = 120#90.0

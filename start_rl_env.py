@@ -30,7 +30,7 @@ n_actions = env.action_space.n
 action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.1 * np.ones(n_actions))
 model = DQN(DQNPolicy, env, verbose=4)
 model.action_noise = action_noise #Somehow does not work with init
-time_steps = 1_000_000
+time_steps = 50_000_000
 model_name = "dqn_rl_car1"
 model_dir = os.path.join(os.path.dirname(__file__), 'model', model_name)
 callback = SaveOnBestTrainingRewardCallback(check_freq=100, log_dir=log_dir)

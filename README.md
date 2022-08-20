@@ -26,7 +26,7 @@ with random speed and (random orientation)
 
 ### Are we 'done'?
 How do we know that an episode (everything between an initial and terminal state) is finished ?
-If the car is not moving with a mean velocity of 0.1 over the last 1000 frame we reset the environment
+If the car is not moving with a mean velocity of 0.1 over the last 200 frame or is more than 50 frames of track, we reset the environment
 
 
 # Parameter

@@ -39,7 +39,7 @@ class RewardAccount:
     total_account: float
     rewards: list
     latest_rewards: float
-    vel_factor = 20
+    vel_factor = 10
 
     def __init__(self):
         self.rewards = []
@@ -70,10 +70,10 @@ class RewardAccount:
         if on_track:
             rewards.append(RewardType(0.0, 'on_track')) #not too high otherwise agent will not move at all
         else:
-            rewards.append(RewardType(-2.0, 'off_track')) #the whole time while off-track!
+            rewards.append(RewardType(-10.0, 'off_track')) #the whole time while off-track!
         if collision:
-            rewards.append(RewardType(-5.0, 'collision')) #only once
-        if check_point: 
+            rewards.append(RewardType(-10.0, 'collision')) #only once
+        if check_point:
             rewards.append(RewardType(+1, 'check_point'))
 
         #TODO add check points

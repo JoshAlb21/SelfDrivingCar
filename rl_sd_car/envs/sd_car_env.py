@@ -46,7 +46,7 @@ class SdCarEnv(gym.Env):
     def check_done(self):
         #TODO add a time buffer in beginning after recent reset to give the agent a chance
         done = False
-        n_last_steps = 1000
+        n_last_steps = 30
         mean_threshold = 0.1
         vel_history = self.environment.car.get_velocity_norm_history(n_last_steps)
         #print(f'Vel history{mean(vel_history)}')
@@ -59,7 +59,7 @@ class SdCarEnv(gym.Env):
         return done
 
     def reset(self):
-        self.environment.action_handler.reset_to_start(self.environment.car)
+        self.environment.action_handler.reset_to_start(self.environment.car, random_vel=True)
         observation = self.environment.get_rl_observation(disable_dist=True)
         self.environment.car.update_velocity_norm_history(reset_list=True)
         self.environment.car.update_on_track(on_track=False, reset_list=True)

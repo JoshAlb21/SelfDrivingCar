@@ -39,8 +39,8 @@ class Game:
         # RL related settings
         self.input_human = input_human
         self.rl_action = None
-        self.pos_action_list = ["up", "down",
-                                "left", "right", "brake" ] #TEST remove "nothing"
+        self.pos_action_list = ["up",
+                                "left", "right" ] #TEST remove "nothing", "down", "brake"
 
         pygame.font.init()
         self.myfont = pygame.font.SysFont('Comic Sans MS', 30)
@@ -106,7 +106,7 @@ class Game:
                     self.car.acceleration = -self.car.velocity.x / dt
                 except ZeroDivisionError:
                     self.car.acceleration
-        elif pressed[pygame.K_BACKSPACE] or action == 'reset':
+        elif pressed[pygame.K_BACKSPACE]:
             self.action_handler.reset_to_start(self.car)
         else:
             if abs(self.car.velocity.x) > dt * self.car.free_deceleration:
@@ -140,21 +140,16 @@ class Game:
         rl_action = self.pos_action_list[self.rl_action-1]
         return rl_action
 
-    def get_rl_observation(self, disable_dist: bool = False) -> Tuple[float, float, float, float, float]:
+    def get_rl_observation(self, disable_dist: bool = False) -> Tuple[float]:
 
         velocity = hypot(self.car.velocity[0], self.car.velocity[1])
         angle = self.car.angle
         if not disable_dist:
-            dist1 = self.car.sensor1.get_dist_to_wall(
-                self.car, self)
-            dist2 = self.car.sensor2.get_dist_to_wall(
-                self.car, self)
-            dist3 = self.car.sensor3.get_dist_to_wall(
-                self.car, self)
+            dist1, dist2, dist3, dist4, dist5, dist6, dist7 = self.car.sensor_manager.get_distances(self.car, self)
         else:
-            dist1, dist2, dist3 = (1.0, 1.0, 1.0)
-
-        return velocity, angle, dist1, dist2, dist3
+            dist1, dist2, dist3, dist4, dist5, dist6, dist7 = (1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+        
+        return velocity, angle, dist1, dist2, dist3, dist4, dist5, dist6, dist7
 
     def init_game(self):
         ''' Initiate all necessary functions and modules'''
@@ -215,9 +210,7 @@ class Game:
         self.screen.blit(self.BackGround.image, self.BackGround.rect)
 
         # Draw sensor lines
-        self.car.sensor1.draw_sensor_line(self.car, self.screen)
-        self.car.sensor2.draw_sensor_line(self.car, self.screen)
-        self.car.sensor3.draw_sensor_line(self.car, self.screen)
+        self.car.sensor_manager.draw_sensor_lines(self.car, self.screen)
 
         self.car.sensor1.get_dist_to_wall(
             self.car, self)

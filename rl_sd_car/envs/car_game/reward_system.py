@@ -39,7 +39,7 @@ class RewardAccount:
     total_account: float
     rewards: list
     latest_rewards: float
-    vel_factor = 200
+    vel_factor = 10
 
     def __init__(self):
         self.rewards = []
@@ -70,15 +70,17 @@ class RewardAccount:
         if on_track:
             rewards.append(RewardType(0.0, 'on_track')) #not too high otherwise agent will not move at all
         else:
-            rewards.append(RewardType(-20.0, 'off_track'))
+            rewards.append(RewardType(-10.0, 'off_track')) #the whole time while off-track!
         if collision:
-            rewards.append(RewardType(-10.0, 'collision'))
-        if check_point: #TODO add check points
+            rewards.append(RewardType(-10.0, 'collision')) #only once
+        if check_point:
             rewards.append(RewardType(+1, 'check_point'))
 
+        #TODO add check points
+
         vel_vec = np.array([velocity_x, velocity_y])
-        vel_norm = np.linalg.norm(vel_vec)
-        velocity_reward = vel_norm/max_velocity_x*self.vel_factor #TODO add hear max_vel y
+        #vel_norm = np.linalg.norm(vel_vec) Car is driving backwards all the time!
+        velocity_reward = velocity_x/max_velocity_x*self.vel_factor #TODO add hear max_vel y
         rewards.append(RewardType(velocity_reward, 'vel_bonus'))
 
         self.latest_rewards = rewards

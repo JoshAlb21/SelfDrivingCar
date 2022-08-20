@@ -20,11 +20,11 @@ class SdCarEnv(gym.Env):
         super().__init__()
         self.environment = game.create_game()
         self.environment.init_game()
-        self.action_space = spaces.Discrete(5,)
-        high: np.array = np.array([20.0, 360.0, 300.0, 300.0, 300.0])
+        self.action_space = spaces.Discrete(3,)
+        high: np.array = np.array([20.0, 360.0, 300.0, 300.0, 300.0, 300.0, 300.0, 300.0, 300.0])
         observation_hist: list = []
         # assumption: no negative velocity
-        low: np.array = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
+        low: np.array = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
         self.observation_space = spaces.Box(low, high, dtype=np.float32)
 
     def step(self, action) -> Tuple[np.array, float, bool, dict]:
@@ -46,7 +46,7 @@ class SdCarEnv(gym.Env):
     def check_done(self):
         #TODO add a time buffer in beginning after recent reset to give the agent a chance
         done = False
-        n_last_steps = 1000
+        n_last_steps = 30
         mean_threshold = 0.1
         vel_history = self.environment.car.get_velocity_norm_history(n_last_steps)
         #print(f'Vel history{mean(vel_history)}')
@@ -59,7 +59,7 @@ class SdCarEnv(gym.Env):
         return done
 
     def reset(self):
-        self.environment.action_handler.reset_to_start(self.environment.car)
+        self.environment.action_handler.reset_to_start(self.environment.car, random_vel=True)
         observation = self.environment.get_rl_observation(disable_dist=True)
         self.environment.car.update_velocity_norm_history(reset_list=True)
         self.environment.car.update_on_track(on_track=False, reset_list=True)

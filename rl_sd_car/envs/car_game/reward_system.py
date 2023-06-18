@@ -38,8 +38,7 @@ class RewardAccount:
 
     total_account: float
     rewards: list
-    latest_rewards: float
-    vel_factor = 10
+    latest_rewards: List[RewardType]
 
     def __init__(self):
         self.rewards = []
@@ -49,16 +48,16 @@ class RewardAccount:
 
         self.rewards.extend(reward_list)
 
-        for reward in reward_list:
-            self.total_account += reward.reward_points
-        self.latest_rewards = sum(
-            [reward.reward_points for reward in reward_list])
+        self.total_account += sum([reward.reward_points for reward in reward_list])
 
     def get_reward_account(self) -> float:
         return self.total_account
 
     def get_latest_rewards(self):
-        return self.latest_rewards
+        # Extract reward points of every RewardType object in list
+        reward = sum([reward.reward_points for reward in self.latest_rewards])
+
+        return reward
 
     def get_list_of_rewards(self):
         return self.rewards
@@ -70,18 +69,16 @@ class RewardAccount:
         if on_track:
             rewards.append(RewardType(0.0, 'on_track')) #not too high otherwise agent will not move at all
         else:
-            rewards.append(RewardType(-10.0, 'off_track')) #the whole time while off-track!
+            rewards.append(RewardType(-1.0, 'off_track')) #the whole time while off-track!
         if collision:
-            rewards.append(RewardType(-10.0, 'collision')) #only once
+            rewards.append(RewardType(-1.0, 'collision')) #only once
         if check_point:
             rewards.append(RewardType(+1, 'check_point'))
 
-        #TODO add check points
-
-        vel_vec = np.array([velocity_x, velocity_y])
-        #vel_norm = np.linalg.norm(vel_vec) Car is driving backwards all the time!
-        velocity_reward = velocity_x/max_velocity_x*self.vel_factor #TODO add hear max_vel y
+        velocity_reward = velocity_x/max_velocity_x # Normalize x-velocity reward [0,1]
         rewards.append(RewardType(velocity_reward, 'vel_bonus'))
+
+        #TODO add check points
 
         self.latest_rewards = rewards
         self.add_total_reward_list(rewards)

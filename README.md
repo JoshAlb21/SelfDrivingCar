@@ -66,3 +66,18 @@ distance2 [0,1]
 
 <!-- MARKDOWN LINKS & IMAGES -->
 [product-screenshot]: images/env_road.png
+
+# How to start
+
+## scripts
+
+run_rl_env.py
+-> run environment ("loop"-mode)
+e.g. for testing purposes/ print information etc.
+
+train_rl_env.py
+-> train a reinforcement model of your choice ("train"-mode)
+
+run_trained_model.py
+-> allows you to run a trained reinforcement learning model in a Gymnasium environment.
+evaluate the performance of the trained model and observe its behavior in the environment.

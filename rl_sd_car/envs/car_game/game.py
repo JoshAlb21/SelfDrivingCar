@@ -161,6 +161,11 @@ class Game:
         self.reward_account = RewardAccount()
 
     def run_game_loop(self):
+        '''
+        Main game loop function.
+        Note: only necessary if NOT using rl, since the step function will handle the game loop
+        in the rl case.
+        '''
 
         self.init_game()
         while not self.exit:
@@ -173,6 +178,9 @@ class Game:
 
         # get time since last call
         dt = self.clock.get_time() / 1000
+
+        # process all events
+        pygame.event.pump()
 
         # check whether to quit game or not
         self.check_quit_game()
@@ -223,6 +231,7 @@ class Game:
         self.screen.blit(rotated, self.car.position *
                          self.ppu - (rect.width / 2, rect.height / 2))
         pygame.display.flip()
+        pygame.display.update()
 
         self.clock.tick(self.ticks)  # adjust fps
 

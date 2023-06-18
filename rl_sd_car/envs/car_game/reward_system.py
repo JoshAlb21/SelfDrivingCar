@@ -1,7 +1,7 @@
 from typing import List
 import numpy as np
 
-
+#TODO add check points
 class CheckPoint:
 
     position: tuple

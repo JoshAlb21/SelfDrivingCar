@@ -1,3 +1,7 @@
+import sys
+import gymnasium
+sys.modules["gym"] = gymnasium
+
 from rl_sd_car.envs.sd_car_env import SdCarEnv
 import numpy as np
 import time

@@ -1,7 +1,6 @@
-import re
-import gym
-from gym import error, spaces, utils
-from gym.utils import seeding
+
+import gymnasium as gym
+from gymnasium import spaces
 
 import numpy as np
 from typing import Tuple

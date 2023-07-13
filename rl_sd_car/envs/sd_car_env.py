@@ -112,6 +112,8 @@ class SdCarEnv(gym.Env):
         self.environment.car.update_velocity_norm_history(reset_list=True)
         self.environment.car.update_on_track(on_track=False, reset_list=True)
 
+        print(f"Observation: {observation}")
+
         info = self._get_info()
 
         return observation, info

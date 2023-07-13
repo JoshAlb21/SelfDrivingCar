@@ -81,3 +81,6 @@ train_rl_env.py
 run_trained_model.py
 -> allows you to run a trained reinforcement learning model in a Gymnasium environment.
 evaluate the performance of the trained model and observe its behavior in the environment.
+
+
+### Bug Fixes

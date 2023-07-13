@@ -132,6 +132,7 @@ class DistSensor:
         self.sensor_length = sensor_length
         self.wall_pix_color = wall_pix_color
         self.add_angle = add_angle
+        self.sensor_pos = Vector2(0.0, 0.0) #dummy values until they are calculated the first time
 
     def get_sensor_pos(self):
         return self.sensor_pos

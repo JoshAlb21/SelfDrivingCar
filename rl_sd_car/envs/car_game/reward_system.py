@@ -43,6 +43,7 @@ class RewardAccount:
     def __init__(self):
         self.rewards = []
         self.total_account = 0
+        self.latest_rewards = [RewardType(0.0, 'init_reward')] #dummy value
 
     def add_total_reward_list(self, reward_list: List[RewardType]):
 

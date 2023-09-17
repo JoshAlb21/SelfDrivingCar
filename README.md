@@ -84,3 +84,6 @@ evaluate the performance of the trained model and observe its behavior in the en
 
 
 ### Bug Fixes
+pip install stable-baselines3==2.0.0a5
+
+add to requirements.txt

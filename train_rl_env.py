@@ -7,6 +7,9 @@ import numpy as np
 import time
 import os
 
+from wandb.integration.sb3 import WandbCallback
+import wandb
+
 from stable_baselines3 import DQN
 from stable_baselines3.dqn.policies import DQNPolicy
 from stable_baselines3.common.monitor import Monitor
@@ -16,6 +19,16 @@ from stable_baselines3.common.noise import NormalActionNoise
 from stable_baselines3.common.evaluation import evaluate_policy
 
 from callback.reward_callback import SaveOnBestTrainingRewardCallback
+
+'''
+run = wandb.init(
+    project="sb3",
+    sync_tensorboard=True,  # auto-upload sb3's tensorboard metrics
+    monitor_gym=True,  # auto-upload the videos of agents playing the game
+    save_code=True,  # optional
+)
+'''
+
 
 env = SdCarEnv()
 log_dir = os.path.join(os.path.dirname(__file__), 'callback')
@@ -34,10 +47,13 @@ n_actions = env.action_space.n
 action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.1 * np.ones(n_actions))
 model = DQN(DQNPolicy, env, verbose=4)
 model.action_noise = action_noise #Somehow does not work with init
-time_steps = 50_000_000
+time_steps = 20_000 #50_000_000
 model_name = "dqn_rl_car1"
 model_dir = os.path.join(os.path.dirname(__file__), 'model', model_name)
 callback = SaveOnBestTrainingRewardCallback(check_freq=100, log_dir=log_dir)
+#callback_wandb = WandbCallback()
+#callback_list = [callback, callback_wandb]
+callback_list = [callback]
 # Train the agent
 
 start_train = time.time()
@@ -47,9 +63,11 @@ if retrain:
     model.set_env(env)
 
 obs = env.reset()
-model.learn(total_timesteps= time_steps, callback=callback)
+model.learn(total_timesteps= time_steps, callback=callback_list)
     
 model.save(model_dir)
+
+#run.finish()
 
 end_train = time.time()
 print(f'Time to train: {end_train-start_train}')

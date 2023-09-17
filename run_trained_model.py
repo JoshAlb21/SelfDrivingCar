@@ -23,4 +23,4 @@ for i in range(n_episodes):
         print(obs)
         print(rewards)
         if done:
-            obs, info = env.reset()
+            obs, info = env.on_manual_reset()

@@ -43,7 +43,8 @@ class EnvironmentHandlerActions:
         if random_vel:
             x_vel = round(random.uniform(3, 6), 2)
             car.velocity = Vector2(x_vel, 0.0)
+            car.angle = 120
         else:
             car.velocity = Vector2(0.0, 0.0)
+            car.angle = 90
         self.acceleration = 0.0
-        car.angle = 120#90.0

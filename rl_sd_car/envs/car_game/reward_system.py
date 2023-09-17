@@ -76,7 +76,7 @@ class RewardAccount:
         if check_point:
             rewards.append(RewardType(+1, 'check_point'))
 
-        velocity_reward = velocity_x/max_velocity_x # Normalize x-velocity reward [0,1]
+        velocity_reward = velocity_x/(max_velocity_x*20) # Normalize x-velocity reward [0,0.05] # lower than 1 because vel reward can be achieved every step
         rewards.append(RewardType(velocity_reward, 'vel_bonus'))
 
         #TODO add check points

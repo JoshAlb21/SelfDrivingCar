@@ -117,6 +117,25 @@ class SdCarEnv(gym.Env):
         info = self._get_info()
 
         return observation, info
+    
+    def on_manual_reset(self):
+        '''
+        Custom reset function.
+        Can be called by the user to reset the environment manually.
+        Especially for inference mode.: do not add random velocity
+        '''
+
+        print('********************RESET (manual)********************')
+        self.environment.action_handler.reset_to_start(self.environment.car, random_vel=False)
+        observation = self.environment.get_rl_observation(disable_dist=True)
+        self.environment.car.update_velocity_norm_history(reset_list=True)
+        self.environment.car.update_on_track(on_track=False, reset_list=True)
+
+        print(f"Observation: {observation}")
+
+        info = self._get_info()
+
+        return observation, info
 
     def close(self):
         pass
